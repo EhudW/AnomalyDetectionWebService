@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="plugins\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="IAnomalyDetector">
+      <HintPath>..\..\..\..\Desktop\ap_ex2\IAnomalyDetector.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
