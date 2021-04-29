@@ -43,6 +43,12 @@ namespace AnomalyDetectionWebService
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AnomalyDetectionWebService v1"));
             }
 
+            // note any default.htm[l] index.htm[l] in any subdirectory of wwwroot may be achievable
+            app.UseDefaultFiles();
+            // files in wwwroot folder
+            app.UseStaticFiles(); 
+
+
             app.UseRouting();
 
             app.UseAuthorization();

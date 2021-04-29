@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Reflection;
 using DLL;
 using System.Threading.Tasks;
@@ -9,10 +10,12 @@ namespace AnomalyDetectionWebService
     
     public class NormalModelInfo
     {
-        public static readonly string Status_NotFound = "NotFound";
+        //public static readonly string Status_NotFound = "NotFound";
         public static readonly string Status_Pending = "pending";
         public static readonly string Status_Ready = "ready";
         public IAnomalyDetector Detector = null;
+        public bool isAviable = true; // for this code page use only
+        public bool IsReady => isAviable && jsonMODEL?.status == Status_Ready;
         public MODEL jsonMODEL = null;
     }
     // manager class for IAnomalyDetector
@@ -24,7 +27,8 @@ namespace AnomalyDetectionWebService
         public static readonly string HybdridDetectorPath = pluginFolder + "HybdridAnomalyDetector.dll";
 
         private readonly Dictionary<string, string> DllPath;
-        private  Dictionary<int, NormalModelInfo> NormalModels;
+        //private  Dictionary<int, NormalModelInfo> NormalModels;
+        private ConcurrentDictionary<int, NormalModelInfo> NormalModels;
 
         public AnomalyDetectorsManager() {
             this.DllPath = new Dictionary<string, string>()
@@ -32,7 +36,7 @@ namespace AnomalyDetectionWebService
                 { "regression", SimpleDetectorPath },
                 { "hybrid", HybdridDetectorPath}
             };
-            this.NormalModels = new Dictionary<int, NormalModelInfo>();
+            this.NormalModels = new ConcurrentDictionary<int, NormalModelInfo>();//new Dictionary<int, NormalModelInfo>();
         }
 
         // example : ("hybrid", "flight_AFG45WQ.csv") -> true
@@ -66,6 +70,7 @@ namespace AnomalyDetectionWebService
         {
             // check default features!
             if (!NormalModels.ContainsKey(id)) return false;
+            if (!NormalModels[id].isAviable) return false; // ???? ???
             return await Task.Run(()=>NormalModels[id].Detector.Learn(normalCSV));
         }
 
@@ -76,16 +81,39 @@ namespace AnomalyDetectionWebService
         {
             // check default features! + check there are at least prev features
             if (!NormalModels.ContainsKey(id)) return null;
+            if (!NormalModels[id].isAviable) return null; // ???? ???
+
             var detector = NormalModels[id].Detector.CloneDueNormalModel();
             bool isSuccess = await Task.Run(() => detector.Detect(testCSV));
             if (!isSuccess) return null;
             return detector;
         }
 
-        public string getIdStatus(int id)
+        public MODEL getIdStatus(int id)
         {
-            if (!NormalModels.ContainsKey(id)) return NormalModelInfo.Status_NotFound;
-            return NormalModels[id].jsonMODEL.status;
+            if (!NormalModels.ContainsKey(id)) return null;
+            if (!NormalModels[id].isAviable) return null; // ???? ???
+            return NormalModels[id].jsonMODEL;
+        }
+
+        public bool IsReady(int id) {
+            if (!NormalModels.ContainsKey(id)) return false;
+            return NormalModels[id].IsReady;
+        }
+        public bool Remove(int id)
+        {
+            if (!NormalModels.ContainsKey(id)) return false;
+            if (!NormalModels[id].isAviable) return false; // ???? ???
+            NormalModels[id].isAviable = false;
+            return true;
+        }
+        public List<MODEL> GetAviableNormalModels()
+        {
+            var list = new List<MODEL>();
+            foreach (var n in NormalModels.Values)
+                if (n.isAviable)
+                    list.Add(n.jsonMODEL);
+            return list;
         }
         // try to create new instance of detector,
         // according the given dll,and return it, or null if failed

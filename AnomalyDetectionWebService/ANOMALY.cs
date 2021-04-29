@@ -10,12 +10,12 @@ namespace AnomalyDetectionWebService
 
     public class Span
     {
-        int start; //include  //notice timestep is start from 0
-        int end; //exclude
+        public long start { get; set; } //include  //notice timestep is start from 0
+        public long end { get; set; }  //exclude
     }
     public class ANOMALY
     {
-        public Dictionary<string, Span> anomalies { get; set; }
+        public Dictionary<string, List<Span>> anomalies { get; set; }
         public string reason { get; set; }
     }
 }

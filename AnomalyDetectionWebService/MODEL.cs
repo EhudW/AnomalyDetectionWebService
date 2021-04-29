@@ -11,5 +11,10 @@ namespace AnomalyDetectionWebService
         public DateTime upload_time { get => time; set { time = value.AddTicks(-(value.Ticks % TimeSpan.TicksPerSecond)); } }
 
         public string status { get; set; }
+
+        public string CSVFileName()
+        {
+            return "normalmodel_" + model_id + ".csv";
+        }
     }
 }
