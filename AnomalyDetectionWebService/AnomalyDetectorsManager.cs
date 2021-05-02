@@ -12,8 +12,17 @@ namespace AnomalyDetectionWebService
     // L_var should be access only within "lock (L_var){}" and for SHORT time lock!
     public class AnomalyDetectorsManager
     {
-        private Dictionary<int, MODEL> L_NormalModels = new Dictionary<int, MODEL>();
+        private Dictionary<int, MODEL> L_NormalModels;
 
+        public AnomalyDetectorsManager(List<MODEL> initList)
+        {
+            L_NormalModels = new Dictionary<int, MODEL>();
+            foreach (var model in initList)
+                if (!L_NormalModels.ContainsKey(model.model_id))
+                    L_NormalModels.Add(model.model_id,
+                                          new MODEL() { model_id = model.model_id, 
+                                                      status = model.status, upload_time = model.upload_time});
+        }
         public bool IsReady(int modelId)
         {
             lock (L_NormalModels)
@@ -37,11 +46,12 @@ namespace AnomalyDetectionWebService
         }
         public MODEL LearnAndAddNewModel(string detectoionType, Train_Data data, Action afterFinishingLearning) {
             MODEL model;
-            int id = 3456;
+            Random rnd = new Random(DateTime.Now.Millisecond);
+            int id = rnd.Next();
             lock (L_NormalModels)
             {
-                while (L_NormalModels.ContainsKey(id))
-                    id = new Random().Next();
+                while (L_NormalModels.ContainsKey(id) || System.IO.File.Exists(new MODEL() { model_id = id}.CSVFileName()))
+                    id = rnd.Next();
                 model = new MODEL() { model_id = id, status = MODEL.Status_Pending,
                                             upload_time = DateTime.Now };
                 L_NormalModels.Add(id,model);
@@ -50,7 +60,8 @@ namespace AnomalyDetectionWebService
                 try
                 {
                     var correlation = AnomalyDetection.GetNormal(data.train_data, detectoionType);
-                    IO_Util.SaveNormalModel(model.CSVFileName(), correlation);
+                    IO_Util.SaveNormalModel(model.CSVFileName(), correlation, 
+                        new MODEL() {model_id = model.model_id, status = MODEL.Status_Ready, upload_time = model.upload_time });
                     lock (L_NormalModels)
                     {
                         if (L_NormalModels.ContainsKey(id)) L_NormalModels[id].status = MODEL.Status_Ready;
@@ -109,6 +120,8 @@ namespace AnomalyDetectionWebService
                 if (L_NormalModels.ContainsKey(id))
                 {
                     L_NormalModels.Remove(id);
+                    try { System.IO.File.Delete(new MODEL() { model_id = id }.CSVFileName()); }
+                    catch { }
                     return true;
                 }
                 else

@@ -17,7 +17,7 @@ namespace AnomalyDetectionWebService
         public static readonly string Status_Corrupted = "corrupted";
         public string CSVFileName()
         {
-            return "NormalModelsDB" + System.IO.Path.DirectorySeparatorChar + "normalmodel_" + model_id + ".csv";
+            return Program.NormalModelCSVFolder + model_id + ".csv";
         }
     }
 }

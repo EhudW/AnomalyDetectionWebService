@@ -37,10 +37,16 @@ namespace AnomalyDetectionWebService.Controllers
     public class AnomalyDetectionController : ControllerBase
     {
         // has to be static to save state between http request
-        private static AnomalyDetectorsManager adm = new AnomalyDetectorsManager();
+        private static AnomalyDetectorsManager adm = null;// init at Program via InitADM
         private static Counter L_LearnDetectAmount = new Counter() { Count = 0 };
         private static readonly int MaxLearnDetectAmount = 20;
 
+        public static bool InitADM(AnomalyDetectorsManager newADM)
+        {
+            if (adm != null) return false;
+            adm = newADM;
+            return true;
+        }
 
         /*
          * Request to server :   Post    /api/model?model_type=hybrid     Body=Train_Data(json)
