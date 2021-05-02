@@ -23,17 +23,31 @@ namespace AnomalyDetectionWebService
                 Console.ReadLine();
                 return;
             }
+            try {
+                string testFile = NormalModelCSVFolder + "testTestTest9999";
+                System.IO.File.WriteAllText(testFile, "something");
+                if (!System.IO.File.Exists(testFile)) throw new Exception();
+                System.IO.File.Delete(testFile);
+                if (System.IO.File.Exists(testFile)) throw new Exception();
+            } catch 
+            {
+                Console.WriteLine("Error: Unable to write and delete within " + NormalModelCSVFolder);
+                Console.WriteLine("       Which in use for database/IO for models storage");
+                Console.WriteLine("\nPress Enter to abort.");
+                Console.ReadLine();
+                return;
+            }
 
             Console.WriteLine("Do you want to restore prev Normal Models?");
             Console.WriteLine("y         yes");
             Console.WriteLine("n         no, but they will stay in folder" + NormalModelCSVFolder);
             Console.WriteLine("remove    no, and ALL csv file in " + NormalModelCSVFolder + " will be removed!");
-            Console.Write("Enter option: ");
+            Console.Write("Enter option [y/n/remove] : ");
 
             string input = Console.ReadLine().ToLower().Trim();
             while (input != "y" && input != "n" && input != "remove")
             {
-                Console.Write("Enter option: ");
+                Console.Write("Enter option [y/n/remove] : ");
                 input = Console.ReadLine().ToLower().Trim();
             }
 
