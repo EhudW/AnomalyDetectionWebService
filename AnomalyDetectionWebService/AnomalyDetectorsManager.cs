@@ -2,138 +2,130 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Reflection;
-using DLL;
+using AnomalyAlgorithm;
 using System.Threading.Tasks;
 
 namespace AnomalyDetectionWebService
 {
-    
-    public class NormalModelInfo
-    {
-        //public static readonly string Status_NotFound = "NotFound";
-        public static readonly string Status_Pending = "pending";
-        public static readonly string Status_Ready = "ready";
-        public IAnomalyDetector Detector = null;
-        public bool isAviable = true; // for this code page use only
-        public bool IsReady => isAviable && jsonMODEL?.status == Status_Ready;
-        public MODEL jsonMODEL = null;
-    }
     // manager class for IAnomalyDetector
-    // syncronic class
+    // safe-thread class
+    // L_var should be access only within "lock (L_var){}" and for SHORT time lock!
     public class AnomalyDetectorsManager
     {
-        public static readonly string pluginFolder = "plugins" + System.IO.Path.DirectorySeparatorChar;
-        public static readonly string SimpleDetectorPath = pluginFolder + "SimpleAnomalyDetector.dll";
-        public static readonly string HybdridDetectorPath = pluginFolder + "HybdridAnomalyDetector.dll";
+        private Dictionary<int, MODEL> L_NormalModels = new Dictionary<int, MODEL>();
 
-        private readonly Dictionary<string, string> DllPath;
-        //private  Dictionary<int, NormalModelInfo> NormalModels;
-        private ConcurrentDictionary<int, NormalModelInfo> NormalModels;
-
-        public AnomalyDetectorsManager() {
-            this.DllPath = new Dictionary<string, string>()
+        public bool IsReady(int modelId)
+        {
+            lock (L_NormalModels)
             {
-                { "regression", SimpleDetectorPath },
-                { "hybrid", HybdridDetectorPath}
-            };
-            this.NormalModels = new ConcurrentDictionary<int, NormalModelInfo>();//new Dictionary<int, NormalModelInfo>();
+                return L_NormalModels.ContainsKey(modelId) && L_NormalModels[modelId].status == MODEL.Status_Ready;
+            }
         }
-
-        // example : ("hybrid", "flight_AFG45WQ.csv") -> true
-        // where AFG45WQ should be uniqe
-        // return unique ID for the model
-        public MODEL AddNewDetector(string detectoionType)
+        public bool IsExist(int modelId)
         {
-            if (!DllPath.ContainsKey(detectoionType)) return null;
-            var detector = LoadAnomalyDetectorFromDLL(DllPath[detectoionType]);
-            if (detector == null) return null;
-
+            lock (L_NormalModels)
+            {
+                return L_NormalModels.ContainsKey(modelId);
+            }
+        }
+        public bool IsPending(int modelId)
+        {
+            lock (L_NormalModels)
+            {
+                return L_NormalModels.ContainsKey(modelId) && L_NormalModels[modelId].status == MODEL.Status_Pending;
+            }
+        }
+        public MODEL LearnAndAddNewModel(string detectoionType, Train_Data data, Action afterFinishingLearning) {
+            MODEL model;
             int id = 3456;
-            while (NormalModels.ContainsKey(id))
-                id = new Random().Next();
+            lock (L_NormalModels)
+            {
+                while (L_NormalModels.ContainsKey(id))
+                    id = new Random().Next();
+                model = new MODEL() { model_id = id, status = MODEL.Status_Pending,
+                                            upload_time = DateTime.Now };
+                L_NormalModels.Add(id,model);
+            }
+            Task.Run(() => {
+                try
+                {
+                    var correlation = AnomalyDetection.GetNormal(data.train_data, detectoionType);
+                    IO_Util.SaveNormalModel(model.CSVFileName(), correlation);
+                    lock (L_NormalModels)
+                    {
+                        if (L_NormalModels.ContainsKey(id)) L_NormalModels[id].status = MODEL.Status_Ready;
+                    }
+                } catch {
+                    lock (L_NormalModels)
+                    {
+                        if (L_NormalModels.ContainsKey(id)) L_NormalModels[id].status = MODEL.Status_Corrupted;
+                    }
+                  }
+                afterFinishingLearning();
+                });
+            return model;
+         }
 
-            MODEL json_model = new MODEL() { model_id = id, status = NormalModelInfo.Status_Pending, upload_time = DateTime.Now };
-            NormalModels.TryAdd(id, new NormalModelInfo() { Detector = detector, jsonMODEL = json_model });
-            return json_model;
-        }
-        //
-        // example of use:
-        //  AnomalyDetectorManager adm = new ...
-        //  int id = adm.AddNewDetector("regression");
-        //  if (id < 0) send error message to client
-        //  else        send to client message with status = pending
-        //  rename the csv to    "normalmodel" + id + ".csv"
-        //  await? adm.Learn(id, "normalmodel" + id + ".csv")
-        //  
-        //
-        public async Task<bool> Learn(int id, string normalCSV)
+        public ANOMALY Detect(int idModel, Predict_Data data)
         {
-            // check default features!
-            if (!NormalModels.ContainsKey(id)) return false;
-            if (!NormalModels[id].isAviable) return false; // ???? ???
-            return await Task.Run(()=>NormalModels[id].Detector.Learn(normalCSV));
+            string csvFile = "";
+            lock(L_NormalModels)
+            {
+                if (L_NormalModels.ContainsKey(idModel) && L_NormalModels[idModel].status == MODEL.Status_Ready)
+                    csvFile = L_NormalModels[idModel].CSVFileName();
+            }
+            if (String.IsNullOrWhiteSpace(csvFile)) return null;
+            var correlation = IO_Util.LoadNormalModel(csvFile);
+            if (correlation == null) return null;
+            try
+            {
+                var detection = AnomalyDetection.GetDetection(data.predict_data, correlation);
+                if (detection == null) return null;
+                Dictionary<string, string> reason = AnomalyDetection.GetReportTypes(correlation, detection);
+                Dictionary<String, List<Span>> spanDictionary = AnomalyDetection.ToSpanDictionary(detection);
+                if (reason == null || spanDictionary == null) return null;
+                return new ANOMALY() { anomalies = spanDictionary, reason = reason };
+            }catch
+            {
+                return null;
+            }
+
         }
 
-        // return IAnomalyDetector after testing or null if failed [id not exist or other bug]
-        // useful IAnomalyDetector members :
-        // NormalModel; MostCorrelativeWith; LastReports; LastDetection;
-        public async Task<IAnomalyDetector> Detect(int id, string testCSV)
+        public MODEL getIdModel(int id)
         {
-            // check default features! + check there are at least prev features
-            if (!NormalModels.ContainsKey(id)) return null;
-            if (!NormalModels[id].isAviable) return null; // ???? ???
-
-            var detector = NormalModels[id].Detector.CloneDueNormalModel();
-            bool isSuccess = await Task.Run(() => detector.Detect(testCSV));
-            if (!isSuccess) return null;
-            return detector;
-        }
-
-        public MODEL getIdStatus(int id)
-        {
-            if (!NormalModels.ContainsKey(id)) return null;
-            if (!NormalModels[id].isAviable) return null; // ???? ???
-            return NormalModels[id].jsonMODEL;
-        }
-
-        public bool IsReady(int id) {
-            if (!NormalModels.ContainsKey(id)) return false;
-            return NormalModels[id].IsReady;
+            lock (L_NormalModels)
+            {
+                if (L_NormalModels.ContainsKey(id))
+                    return L_NormalModels[id];
+                else
+                    return null;
+            }
         }
         public bool Remove(int id)
         {
-            if (!NormalModels.ContainsKey(id)) return false;
-            if (!NormalModels[id].isAviable) return false; // ???? ???
-            NormalModels[id].isAviable = false;
-            return true;
-        }
-        public List<MODEL> GetAviableNormalModels()
-        {
-            var list = new List<MODEL>();
-            foreach (var n in NormalModels.Values)
-                if (n.isAviable)
-                    list.Add(n.jsonMODEL);
-            return list;
-        }
-        // try to create new instance of detector,
-        // according the given dll,and return it, or null if failed
-        public static IAnomalyDetector LoadAnomalyDetectorFromDLL(string fromDllPath)
-        {
-            try
+            lock(L_NormalModels)
             {
-                // dynamic link
-                var dll = Assembly.LoadFile(fromDllPath);
-                // get the type of the detector
-                var type = dll.GetType("DLL.AnomalyDetector");
-                // create new instance (dynamic, because it's .net library it is also "object" type for sure)
-                dynamic instance = Activator.CreateInstance(type);
-                // try to cast it to IAnomalyDetector
-                return (IAnomalyDetector)instance;
+                if (L_NormalModels.ContainsKey(id))
+                {
+                    L_NormalModels.Remove(id);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
-            catch
+        }
+        public List<MODEL> GetNormalModels()
+        {
+            lock (L_NormalModels)
             {
+                var list = new List<MODEL>();
+                foreach (var model in L_NormalModels.Values)
+                        list.Add(model);
+                return list;
             }
-            return null;
         }
     }
 }

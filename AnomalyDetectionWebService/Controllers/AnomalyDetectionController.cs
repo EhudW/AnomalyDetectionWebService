@@ -6,88 +6,105 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.IO;
 
-// todo
-// delete .tmp files
-// check the system works :)
-// maybe add store cf [normal model in files rather than the ram {both dll should be changed: cpp dll + c# dll}
+/* 
+    http status codes from wikipedia: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+    200 OK
+    201 Created
+    202 Accepted
+    204 No Content
+
+    302 Found (Previously "Moved temporarily")
+
+    400 Bad Request
+    404 Not Found
+
+    500 Internal Server Error
+    503 Service Unavailable
+*/
 namespace AnomalyDetectionWebService.Controllers
 {
+    public class Counter
+    {
+        public int Count { get; set; }
+        public int Decrease() { lock(this) { return --Count; } }
+        public int Increase() { lock(this) { return ++Count; } }
+    }
+
     [ApiController]
     [Route("api")]
+
+    // L_var should be access only within "lock (L_var){}" and for SHORT time lock!
     public class AnomalyDetectionController : ControllerBase
     {
-
-        // private readonly ILogger<AnomalyDetectionController> _logger;
-
-        public AnomalyDetectionController()//ILogger<AnomalyDetectionController> logger)
-        {
-            // _logger = logger;
-        }
-        private AnomalyDetectorsManager adm = new AnomalyDetectorsManager();
+        // has to be static to save state between http request
+        private static AnomalyDetectorsManager adm = new AnomalyDetectorsManager();
+        private static Counter L_LearnDetectAmount = new Counter() { Count = 0 };
+        private static readonly int MaxLearnDetectAmount = 20;
 
 
-        private static bool writeToCsv(string csvName, Dictionary<String, List<float>> data)
-        {
-            try
-            {
-                string[] features = data.Keys.ToArray();
-                int minSize = 0;
-                foreach (string f in features) minSize = Math.Min(minSize, data[f].Count);
-
-                using (FileStream outFile = System.IO.File.Open(csvName, FileMode.Create))
-                {
-
-                    var output = new StreamWriter(outFile);
-
-                    String featuresLine = String.Join(',', features);
-                    output.Write(featuresLine + "\n");
-                    output.Flush();
-
-                    for (int i = 0; i < minSize; i++)
-                    {
-                        bool notFirst = false;
-                        foreach (string f in features)
-                        {
-                            if (notFirst) output.Write(',');
-                            output.Write(data[f][i]);
-                            notFirst = true;
-                        }
-                        output.Write('\n');
-                        output.Flush();
-                    }
-
-                }
-                return true;
-            } catch { return false; }
-        }
-
+        /*
+         * Request to server :   Post    /api/model?model_type=hybrid     Body=Train_Data(json)
+         * Server does:          Learn new normal model(in background), and add to models list
+         * 
+         * Server responses:     [202 Accepted]                MODEL(json) -state of the new added model, before finishing the learning
+         * Server responses:     [400 Bad Request]             unsupported model_type
+         * Server responses:     [500 Internal Server Error]   on error with the addition
+         * Server responses:     [503 Service Unavailable]     when unable to handle more than 20 learn & detect request at same time
+         */
         [Route("model")]
         [HttpPost]
         public MODEL UploadModelData([FromBody] Train_Data data, [FromQuery(Name = "model_type")] string model_type)
         {
-            var model = adm.AddNewDetector(model_type);
-            if (model == null || !writeToCsv(model.CSVFileName(), data.train_data))
+            if (!AnomalyAlgorithm.AnomalyDetection.IsSupportedMethod(model_type)) {
+                HttpContext.Response.StatusCode = 400;
+                return null;
+            }
+            int amount;
+            lock(L_LearnDetectAmount) {L_LearnDetectAmount.Count++; amount = L_LearnDetectAmount.Count; }
+            if (amount > MaxLearnDetectAmount)
+            {
+                lock(L_LearnDetectAmount) {L_LearnDetectAmount.Count--;}
+                HttpContext.Response.StatusCode = 503;
+                return null;
+            }
+
+            var model = adm.LearnAndAddNewModel(model_type, data, ()=> L_LearnDetectAmount.Decrease());
+            if (model == null)
             {
                 HttpContext.Response.StatusCode = 500;
                 return null;
             }
-            Task.Run(() => adm.Learn(model.model_id, model.CSVFileName()));
-            return new MODEL() { model_id = 0, status = NormalModelInfo.Status_Pending, upload_time = DateTime.Now };
+            HttpContext.Response.StatusCode = 202;
+            return model;
         }
 
+        /*
+         * Request to server :   Get    /api/model?model_id=0000
+         * 
+         * Server responses:     [200 OK]           MODEL(json) - state of the model
+         * Server responses:     [404 Not Found]    when no model with the id was found
+         */
         [Route("model")]
         [HttpGet]
         public MODEL CheckModelStatus([FromQuery(Name = "model_id")] int model_id)
         {
-            var status = adm.getIdStatus(model_id);
+            var status = adm.getIdModel(model_id);
             if (status == null)
             {
                 HttpContext.Response.StatusCode = 404;
                 return null;
             }
+            HttpContext.Response.StatusCode = 200;
             return status;
         }
 
+
+        /*
+        * Request to server :   DELETE    /api/model?model_id=0000
+        * 
+        * Server responses:     [204 No Content]     the model was deleted
+        * Server responses:     [404 Not Found]      when no model with the id was found
+        */
         [Route("model")]
         [HttpDelete]
         public void DeleteModel([FromQuery(Name = "model_id")] int model_id)
@@ -97,76 +114,59 @@ namespace AnomalyDetectionWebService.Controllers
                 HttpContext.Response.StatusCode = 404;
                 return;
             }
+            HttpContext.Response.StatusCode = 204;
         }
 
+        /*
+         * Request to server :   Get    /api/models
+         * 
+         * Server responses:     [200 OK]     List<MODEL>(json) - state of all models in the server
+         */
         [Route("models")]
         [HttpGet]
         public List<MODEL> GetAviableNormalModels()
         {
-            return adm.GetAviableNormalModels();
+            HttpContext.Response.StatusCode = 200;
+            return adm.GetNormalModels();
         }
 
 
-        private static string getRandomFileName(int modelID)
-        {
-            int num = 3456;
-            while (System.IO.File.Exists($"model_{modelID}_test_{num}.csv"))
-                num = new Random().Next();
-            return $"model_{modelID}_test_{num}.csv";
-        }
+        /*
+         * Request to server :   Post    /api/anomaly?model_id=0000     Body=Predict_Data(json)
+         * Server does:          Load normal model(all in foreground) and calculate the span of the anomalies report
+         * 
+         * Server responses:     [200 OK]                                        ANOMLAY(json) 2 Dictionary of [feature:List<Span>] and [featureWhichHasReport:short string description]
+         * Server responses:     [302 Found (Previously "Moved temporarily")]    if the model_id isn't ready (or exist), redirect to check it's state at [GET] /api/model?model_id={model_id}
+         * Server responses:     [500 Internal Server Error]                     on error with the detection
+         * Server responses:     [503 Service Unavailable]                       when unable to handle more than 20 learn & detect request at same time
+         */
         [Route("anomaly")]
         [HttpPost]
-        public async Task<ANOMALY> DetectAnomalies([FromBody] Predict_Data data, [FromQuery(Name = "model_id")] int model_id)
+        public ANOMALY DetectAnomalies([FromBody] Predict_Data data, [FromQuery(Name = "model_id")] int model_id)
         {
             if (!adm.IsReady(model_id)) { 
-                HttpContext.Response.Redirect($"/api/model?model_id={model_id}", false);
+                HttpContext.Response.Redirect($"/api/model?model_id={model_id}", false); // false for 302 "Moved temporarily" rather than 301  "Moved Permanently"
                 return null;
             }
-            string fileName = getRandomFileName(model_id);
-            bool isSuccess = writeToCsv(fileName, data.predict_data);
-            var detector = isSuccess ? await adm.Detect(model_id, fileName) : null;
-            if (detector == null)
+
+            int amount;
+            lock (L_LearnDetectAmount) { L_LearnDetectAmount.Count++; amount = L_LearnDetectAmount.Count; }
+            if (amount > MaxLearnDetectAmount)
+            {
+                lock (L_LearnDetectAmount) { L_LearnDetectAmount.Count--; }
+                HttpContext.Response.StatusCode = 503;
+                return null;
+            }
+
+            var detection = adm.Detect(model_id, data);
+            lock (L_LearnDetectAmount) { L_LearnDetectAmount.Count--; }
+            if (detection == null)
             {
                     HttpContext.Response.StatusCode = 500;
                     return null;
              }
-
-            var spanDictionary = new Dictionary<string, List<Span>>();
-            foreach (string f in data.predict_data.Keys)
-            {
-                var f_span = new List<Span>();
-                long range_start = -100;
-                long last_timestep = -100;
-                foreach (var report in detector.LastReports(f))
-                {
-                    if (range_start == -100) {
-                        range_start = report.timeStep;
-                        last_timestep = report.timeStep;
-                        continue;
-                    }
-                    if (last_timestep + 1 == report.timeStep)
-                    {
-                        last_timestep = report.timeStep;
-                        continue;
-                    }
-                    f_span.Add(new Span() { start = range_start, end = last_timestep });
-                    last_timestep = report.timeStep;
-                    range_start = report.timeStep;
-                }
-                if (range_start != -100)
-                {
-                    f_span.Add(new Span() { start = range_start, end = last_timestep });
-                }
-                spanDictionary.Add(f, f_span);
-            }
-            return new ANOMALY() { anomalies = spanDictionary , reason = "ANY"};// reason=any??
-            // delete fileName file??
+            HttpContext.Response.StatusCode = 200;
+            return detection;
         }
-
-        /* if (model_id == 1)
-         {
-             HttpContext.Response.Redirect("/", false);
-             return null;
-         }*/
     }
 }

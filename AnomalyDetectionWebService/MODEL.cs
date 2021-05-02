@@ -12,9 +12,12 @@ namespace AnomalyDetectionWebService
 
         public string status { get; set; }
 
+        public static readonly string Status_Pending = "pending";
+        public static readonly string Status_Ready = "ready";
+        public static readonly string Status_Corrupted = "corrupted";
         public string CSVFileName()
         {
-            return "normalmodel_" + model_id + ".csv";
+            return "NormalModelsDB" + System.IO.Path.DirectorySeparatorChar + "normalmodel_" + model_id + ".csv";
         }
     }
 }
