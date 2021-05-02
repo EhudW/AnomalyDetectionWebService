@@ -19,6 +19,8 @@ namespace AnomalyDetectionWebService
             {
                 Console.WriteLine("Error: Unable to find folder "+NormalModelCSVFolder);
                 Console.WriteLine("       Which in use for database/IO for models storage");
+                Console.WriteLine("\nPress Enter to abort.");
+                Console.ReadLine();
                 return;
             }
 
