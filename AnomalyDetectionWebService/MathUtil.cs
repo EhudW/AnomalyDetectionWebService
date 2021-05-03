@@ -61,6 +61,7 @@ namespace AnomalyAlgorithm
 		public static float Dev(Point p, float[] x, float[] y) { return Dev(p, Reg(x, y)); }
 		public static float Dev(Point p, Line l) { return (float)Math.Abs(p.y - l.f(p.x)); }
 
+		// find minimal ecnclosing circle which contains the given points
 		public static Circle findMinCircle(List<Point> points)
 		{
 			return MinimalCircle.findMinCircle(points);
@@ -76,6 +77,7 @@ namespace AnomalyAlgorithm
 
 	public class MinimalCircle
 	{
+		// trivial minimal ecnclosing circle which contains the given points
 		private static Circle from2points(Point a, Point b)
 		{
 			float _x = (a.x + b.x) / 2;
@@ -90,6 +92,7 @@ namespace AnomalyAlgorithm
 			float y2 = (a.y - b.y) * (a.y - b.y);
 			return (float)Math.Sqrt(x2 + y2);
 		}
+		// trivial minimal ecnclosing circle which contains the given points
 		private static Circle from3Points(Point a, Point b, Point c)
 		{
 			Point mAB = new Point() { x = (a.x + b.x) / 2, y = (a.y + b.y) / 2 }; // mid point of line AB
@@ -110,6 +113,7 @@ namespace AnomalyAlgorithm
 			return new Circle() { center = center, radius = R };
 		}
 
+		// trivial minimal ecnclosing circle which contains the given points
 		private static Circle trivial(List<Point> P)
 		{
 			if (P.Count == 0)
@@ -132,26 +136,32 @@ namespace AnomalyAlgorithm
 			// else find the unique circle from 3 points
 			return from3Points(P[0], P[1], P[2]);
 		}
+
+		// welzl algorithm to find minimal enclosing circle, P is points, R is points that have to be on the circumference of a circle, n is |P|
 		private static Circle welzl(List<Point> P, List<Point> R, int n)
 		{
-			//if(n>500)Console.WriteLine(n);
+			// we must take the trivial choich if we have limits |R| = 3 or |P| = 0
 			if (n == 0 || R.Count == 3)
 			{
 				return trivial(new List<Point>(R));
 			}
 
+			// let P = P - {p}
 			Point p = new Point() { x = P[n - 1].x, y = P[n - 1].y };
 
+			// otherwise, maybe the enclosing circle doesn't have the 'last' point = p, on its circumference
 			Circle c = welzl(P, new List<Point>(R), n - 1);
 
 			if (dist(p, c.center) <= c.radius)
 				return c;
 
+			// if we here, it's means the 'last' point = p, has to be on the circumference of the enclosing circle
 			R.Add(p);
 
 			return welzl(P, new List<Point>(R), n - 1);
 		}
 
+		// find minimal ecnclosing circle which contains the given points, using welzl algorithm
 		public static Circle findMinCircle(List<Point> points)
 		{
 			return welzl(points, new List<Point>(), points.Count);

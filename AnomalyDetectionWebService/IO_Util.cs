@@ -17,6 +17,7 @@ namespace AnomalyDetectionWebService
     }
     public class IO_Util
     {
+        // save normal model (list of correlated features) and their descrition/info to info file. return false if error occurs.
         public static bool SaveNormalModel(string outputName, List<CorrelatedFeatures> normal_model, MODEL description)
         {
             ExtendedModelInfo info = new ExtendedModelInfo() { info = description, normal_model = normal_model };
@@ -31,11 +32,12 @@ namespace AnomalyDetectionWebService
                 return false;
             }
         }
-
+        // return normal model (list of correlated features) from info file. return null if error occurs.
         public static List<CorrelatedFeatures> LoadNormalModel(string sourceFile)
         {
             return RestoreExtendedModelInfo(sourceFile)?.normal_model;
         }
+        // return normal model (list of correlated features) and their descrition/info from info file. return null if error occurs.
         public static ExtendedModelInfo RestoreExtendedModelInfo(string sourceFile)
         {
             try

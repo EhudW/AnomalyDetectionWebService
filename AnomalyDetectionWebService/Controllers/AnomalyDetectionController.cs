@@ -25,7 +25,10 @@ using System.IO;
 /* In addition ti the server http response status that are described below, 
  * 1) If unknown URI is asked by the client then HTTP ERROR 404 Not Found is responed
  * 2) If unmatch data (like invalid json for example) is sent/ required data isn't sent in the client request,
- *    then 400 Error: Bad Request is responed by the server
+ *    then 400 Error: Bad Request is responed by the server.
+ *    However, json parser [probably only when there is default constructor in used by the parser]
+ *    will set inner field to null if it's no explicty mentioned.
+ *    so {"firstList": []} can become instance of TwoList which will contain fields : firstList = empty list, secondList = null 
  * 3) Note that there are static resources that the Startup class configures to return such as "/"
  *    for suitable html page (which includes javascript) for the browser-client,
  *    in order to use the following server services in gui.
@@ -62,7 +65,7 @@ namespace AnomalyDetectionWebService.Controllers
          * Server does:          Learn new normal model(in background), and add to models list
          * 
          * Server responses:     [202 Accepted]                MODEL(json) -state of the new added model, before finishing the learning
-         * Server responses:     [400 Bad Request]             unsupported model_type
+         * Server responses:     [400 Bad Request]             unsupported model_type or not given train_data info [json parse will set it to null]
          * Server responses:     [500 Internal Server Error]   on error with the addition
          * Server responses:     [503 Service Unavailable]     when unable to handle more than 20 learn & detect request at same time
          */
@@ -70,7 +73,7 @@ namespace AnomalyDetectionWebService.Controllers
         [HttpPost]
         public MODEL UploadModelData([FromBody] Train_Data data, [FromQuery(Name = "model_type")] string model_type)
         {
-            if (!AnomalyAlgorithm.AnomalyDetection.IsSupportedMethod(model_type)) {
+            if (!AnomalyAlgorithm.AnomalyDetection.IsSupportedMethod(model_type) || data.train_data == null) {
                 HttpContext.Response.StatusCode = 400;
                 return null;
             }
@@ -152,6 +155,7 @@ namespace AnomalyDetectionWebService.Controllers
          * 
          * Server responses:     [200 OK]                                        ANOMLAY(json) 2 Dictionary of [feature:List<Span>] and [featureWhichHasReport:short string description]
          * Server responses:     [302 Found (Previously "Moved temporarily")]    if the model_id isn't ready (or exist), redirect to check it's state at [GET] /api/model?model_id={model_id}
+         * Server responses:     [400 Bad Request]                               not given predict_data info [json parse will set it to null]
          * Server responses:     [500 Internal Server Error]                     on error with the detection
          * Server responses:     [503 Service Unavailable]                       when unable to handle more than 20 learn & detect request at same time
          */
@@ -159,6 +163,11 @@ namespace AnomalyDetectionWebService.Controllers
         [HttpPost]
         public ANOMALY DetectAnomalies([FromBody] Predict_Data data, [FromQuery(Name = "model_id")] int model_id)
         {
+            if (data.predict_data == null)
+            {
+                HttpContext.Response.StatusCode = 400;
+                return null;
+            }
             if (!adm.IsReady(model_id)) { 
                 HttpContext.Response.Redirect($"/api/model?model_id={model_id}", false); // false for 302 "Moved temporarily" rather than 301  "Moved Permanently"
                 return null;

@@ -1,14 +1,13 @@
-//{anomalies: { col_name_1:[span_1], col_name_2:[span_1, span_2, ... ] ….},
-//reason: Any} }
-
 using System;
 using System.Collections.Generic;
 
+// Span should be list of 2 elements: [start_inclusive, end_exclusive]
 using Span = System.Collections.Generic.List<long>;
 
 namespace AnomalyDetectionWebService
 {
-    // {“altitude_gps”: [100, 110, 20, 120…], “heading_gps”: [0.6, 0.59, 0.54, 0.51, ...] }
+    // {"anomalies":{“altitude_gps”: [[100, 110], [20, 120] …], “heading_gps”: [] , ... },
+    //  "reason" :  {“altitude_gps”: "Minimal Circle with feature" , ... } }
     public class ANOMALY
     {
         public Dictionary<string, List<Span>> anomalies { get; set; }

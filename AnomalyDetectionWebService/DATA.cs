@@ -3,14 +3,16 @@ using System.Collections.Generic;
 
 namespace AnomalyDetectionWebService
 {
-    // {“altitude_gps”: [100, 110, 20, 120…], “heading_gps”: [0.6, 0.59, 0.54, 0.51, ...] }
 
 
+    // { "predict_data" :{“altitude_gps”: [[100, 110],[200,210]…], “heading_gps”: [], ... } }
     public class Predict_Data 
     {
         // method to check one list included in other
         public Dictionary<String, List<float>> predict_data { get; set; }
     }
+
+    // { "train_data" :{“altitude_gps”: [[100, 110],[200,210]…], “heading_gps”: [], ... } }
     public class Train_Data 
     {
         // method to check one list included in other

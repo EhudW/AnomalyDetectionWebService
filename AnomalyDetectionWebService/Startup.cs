@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace AnomalyDetectionWebService
 {
+    // class to configure the server (like response flow etc...)
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -49,7 +50,7 @@ namespace AnomalyDetectionWebService
             // files in wwwroot folder
             app.UseStaticFiles(); 
 
-
+            // controllers that handle URI
             app.UseRouting();
 
             app.UseAuthorization();
