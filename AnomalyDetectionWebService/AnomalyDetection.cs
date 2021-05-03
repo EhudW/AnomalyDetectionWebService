@@ -20,6 +20,8 @@ using System.Threading.Tasks;
 
 using System.Text.Json.Serialization;
 
+using Span = System.Collections.Generic.List<long>;
+
 // public static List<CorrelatedFeatures> GetNormal(Dictionary<string, List<float>> features, string method, bool commutative = true)
 // public static Dictionary<string,List<int>> GetDetection(Dictionary<string, List<float>> features , List<CorrelatedFeatures> normal_model)
 namespace AnomalyAlgorithm
@@ -47,11 +49,11 @@ namespace AnomalyAlgorithm
         [JsonConstructorAttribute]
         public CorrelatedFeatures() { }
     }
-    public class Span
+   /* public class Span
     {
         public long start { get; set; } //include  //notice timestep is start from 0
         public long end { get; set; }  //exclude
-    }
+    }*/
     public class AnomalyDetection
     {
         private delegate bool AnomalousChecker(float x, float y, CorrelatedFeatures c);
@@ -62,7 +64,7 @@ namespace AnomalyAlgorithm
 
         };
 
-        private delegate object[] ThresholdFactory(float[] x, float[] y); // <float, string, object>
+        private delegate CorrelatedFeatures ThresholdFactory(float[] x, float[] y); // <float, string, object>
         // must check each float value x is: AnomalyAlgorithim.IsRegularNum(x)
         private static readonly Dictionary<string, ThresholdFactory> ThresholdMethods = new Dictionary<string, ThresholdFactory>() {
             { "regression", ThresholdFactory_linear},
@@ -111,14 +113,14 @@ namespace AnomalyAlgorithm
                     mostCorrelative_pearson = p;
                 }
                 if (mostCorrelative_idx == -1) continue;
-                object[] rslt = create(features[f1].ToArray(), features[orderedFeatures[mostCorrelative_idx]].ToArray()); //<float threshold, string typeName, object correlationObject>
-                if (rslt == null) continue;
-                float mostCorrelative_threshold = (float)rslt[0] * 1.1f;
-                string typeName = (string)rslt[1];
-                object mostCorrelative_object = rslt[2];
-                if (IsRegularNum(mostCorrelative_pearson) && IsRegularNum(mostCorrelative_threshold))
-                    result.Add(new CorrelatedFeatures(f1, orderedFeatures[mostCorrelative_idx],
-                         mostCorrelative_pearson, mostCorrelative_threshold, typeName, mostCorrelative_object));
+                CorrelatedFeatures tmp = create(features[f1].ToArray(), features[orderedFeatures[mostCorrelative_idx]].ToArray()); //<float threshold, string typeName, object correlationObject>
+                if (tmp == null) continue;
+                tmp.threshold = tmp.threshold * 1.1f;
+                if (!IsRegularNum(mostCorrelative_pearson) || !IsRegularNum(tmp.threshold)) continue;
+                tmp.correlation = mostCorrelative_pearson;
+                tmp.feature1 = f1;
+                tmp.feature2 = orderedFeatures[mostCorrelative_idx];
+                result.Add(tmp);
             }
             return result;
         }
@@ -172,7 +174,7 @@ namespace AnomalyAlgorithm
         {
             return double.IsFinite(num);
         }
-        private static object[] ThresholdFactory_linear(float[] x, float[] y)
+        private static CorrelatedFeatures ThresholdFactory_linear(float[] x, float[] y)
         {
             if (Math.Abs(MathUtil.Pearson(x, y)) < 0.9) return null;
             var tmp = MathUtil.Reg(x, y);
@@ -183,16 +185,16 @@ namespace AnomalyAlgorithm
                 Point p = new Point() { x = x[i], y = y[i] };
                 max = Math.Max(max, Math.Abs(MathUtil.Dev(p, tmp)));
             }
-            return new object[] { (float)max, "Line Regression", tmp };
+            return new CorrelatedFeatures { threshold = (float)max, typeName = "Line Regression", lin_reg = tmp };
         }
-        private static object[] ThresholdFactory_circle(float[] x, float[] y)
+        private static CorrelatedFeatures ThresholdFactory_circle(float[] x, float[] y)
         {
             if (Math.Abs(MathUtil.Pearson(x, y)) < 0.5) return null;
             var tmp = MathUtil.findMinCircle(x, y);
             if (!IsRegularNum(tmp.center.x) || !IsRegularNum(tmp.center.y) || !IsRegularNum(tmp.radius)) return null;
-            return new object[] { tmp.radius, "Minimal Circle", tmp };
+            return new CorrelatedFeatures { threshold =  tmp.radius, typeName = "Minimal Circle", minimal_circ = tmp };
         }
-        private static object[] ThresholdFactory_hybrid(float[] x, float[] y)
+        private static CorrelatedFeatures ThresholdFactory_hybrid(float[] x, float[] y)
         {
             return ThresholdFactory_linear(x, y) ?? ThresholdFactory_circle(x, y);
         }
@@ -219,13 +221,13 @@ namespace AnomalyAlgorithm
                         last_timestep = timeStep;
                         continue;
                     }
-                    f_span.Add(new Span() { start = range_start, end = last_timestep });
+                    f_span.Add(new Span() { range_start, last_timestep + 1 });
                     last_timestep = timeStep;
                     range_start = timeStep;
                 }
                 if (range_start != -100)
                 {
-                    f_span.Add(new Span() { start = range_start, end = last_timestep });
+                    f_span.Add(new Span() { range_start, last_timestep + 1 });
                 }
                 spanDictionary.Add(f, f_span);
             }

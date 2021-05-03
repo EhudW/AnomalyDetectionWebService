@@ -5,6 +5,8 @@ using System.Reflection;
 using AnomalyAlgorithm;
 using System.Threading.Tasks;
 
+using Span = System.Collections.Generic.List<long>;
+
 namespace AnomalyDetectionWebService
 {
     // manager class for IAnomalyDetector

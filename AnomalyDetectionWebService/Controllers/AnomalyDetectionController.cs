@@ -21,6 +21,15 @@ using System.IO;
     500 Internal Server Error
     503 Service Unavailable
 */
+
+/* In addition ti the server http response status that are described below, 
+ * 1) If unknown URI is asked by the client then HTTP ERROR 404 Not Found is responed
+ * 2) If unmatch data (like invalid json for example) is sent/ required data isn't sent in the client request,
+ *    then 400 Error: Bad Request is responed by the server
+ * 3) Note that there are static resources that the Startup class configures to return such as "/"
+ *    for suitable html page (which includes javascript) for the browser-client,
+ *    in order to use the following server services in gui.
+ */
 namespace AnomalyDetectionWebService.Controllers
 {
     public class Counter
