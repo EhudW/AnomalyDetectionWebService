@@ -17,12 +17,12 @@ The second part is client-side(browser page) which uses the server and enable no
 
 # Folder structure links
 (AnomalyDetectionWebService shortcut is ADWS)
- * [ADWS/](/)      Root folder
+ * ADWS/      Root folder
  * [ADWS/ADWS/](AnomalyDetectionWebService/)  Source files of the server side
 * [ADWS/ADWS/Controllers/](AnomalyDetectionWebService/Controllers/)  Source files of controllers which handle http request from server side
 * [ADWS/ADWS/NormalModelsDB/](AnomalyDetectionWebService/NormalModelsDB/)   Folder to store the trained data, the correlative feature according to normal flight
-* [ADWS/ADWS/Properties/](AnomalyDetectionWebService/Properties/)  contains launchSettings.json to set if it's developing / production environment
-* [ADWS/ADWS/wwwroot/](AnomalyDetectionWebService/wwwroot/)  The folder which contain the page the server sends to the client. Its static resource of the server, but it operates dynamicaly in the client browser 
+* [ADWS/ADWS/Properties/](AnomalyDetectionWebService/Properties/)  Contains launchSettings.json to set if it's developing / production environment
+* [ADWS/ADWS/wwwroot/](AnomalyDetectionWebService/wwwroot/)  The folder which contain the page the server sends to the client. It's static resource of the server, but it operates dynamicaly in the client browser 
 
 
 # Pre requirements
