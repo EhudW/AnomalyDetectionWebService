@@ -76,8 +76,9 @@ namespace AnomalyDetectionWebService.Models
             Task.Run(() => {
                 try
                 {
-                    // learn noraml mode [that might take while]
-                    var correlation = AnomalyDetection.GetNormal(data.train_data, detectoionType);
+                    // learn noraml mode [that might take while], only if id not deleted yet
+                    var correlation = AnomalyDetection.GetNormal(data.train_data, detectoionType, ()=>this.IsExist(id));
+                    if (correlation == null) throw new Exception();
                     // save it to json file
                     bool isSuccess = IO_Util.SaveNormalModel(model.FileName(), correlation, 
                                          new MODEL() {model_id = model.model_id, status = MODEL.Status_Ready, upload_time = model.upload_time });
@@ -85,7 +86,17 @@ namespace AnomalyDetectionWebService.Models
                     if (!isSuccess) throw new Exception();
                     lock (L_NormalModels)
                     {
-                        if (L_NormalModels.ContainsKey(id)) L_NormalModels[id].status = MODEL.Status_Ready;
+                        if (L_NormalModels.ContainsKey(id)) {
+                            L_NormalModels[id].status = MODEL.Status_Ready;
+                        }
+                        else
+                        {
+                            // probably we won't get here since correlaion wil be null if id was deleted from L_NormalModels,
+                            // because we sent the lambda ()=>this.IsExist(id) to AnomalyDetection.GetNormal
+                            try { System.IO.File.Delete(new MODEL() { model_id = id }.FileName()); }
+                            catch { }
+                        }
+
                     }
                 } catch {
                     lock (L_NormalModels)

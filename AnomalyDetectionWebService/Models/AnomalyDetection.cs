@@ -60,19 +60,22 @@ namespace AnomalyDetectionWebService.Models
 
         };
 
+        public delegate bool ShouldContinue();
+        public static bool AlwaysContinue() { return true; }
+
         // Return if the method name is supported by the AnomalyDetection
         public static bool IsSupportedMethod(string algorithmMethod)
         {
             return CheckerMethods.ContainsKey(algorithmMethod) && ThresholdMethods.ContainsKey(algorithmMethod);
         }
-        // Get normal model of specific learning-method
-        public static List<CorrelatedFeatures> GetNormal(Dictionary<string, List<float>> features, string method, bool commutative = true)
+        // Get normal model of specific learning-method, learning will abort if shouldContinueLearning() == false and will return null;
+        public static List<CorrelatedFeatures> GetNormal(Dictionary<string, List<float>> features, string method, ShouldContinue shouldContinueLearning, bool commutative = true)
         {
             if (!ThresholdMethods.ContainsKey(method)) return new List<CorrelatedFeatures>();
-            return GetNormal(features, ThresholdMethods[method], commutative);
+            return GetNormal(features, ThresholdMethods[method], shouldContinueLearning, commutative);
         }
-        // Get normal model of specific learning-method
-        private static List<CorrelatedFeatures> GetNormal(Dictionary<string, List<float>> features, ThresholdFactory create, bool commutative = true)
+        // Get normal model of specific learning-method, learning will abort if shouldContinueLearning() == false and will return null;
+        private static List<CorrelatedFeatures> GetNormal(Dictionary<string, List<float>> features, ThresholdFactory create, ShouldContinue shouldContinueLearning, bool commutative = true)
         {
             List<CorrelatedFeatures> result = new List<CorrelatedFeatures>();
             List<String> orderedFeatures = new List<string>();
@@ -80,6 +83,10 @@ namespace AnomalyDetectionWebService.Models
             // for each feature as being feautre 1 [left feature]
             for (int i = 0; i < orderedFeatures.Count; i++)
             {
+                // check if it's still relevant to learn[ or model has already deleted, for example]
+                // check only in outer loop, but inner loop is very fast
+                if (!shouldContinueLearning()) return null;
+
                 int mostCorrelative_idx = -1;
                 float mostCorrelative_pearson = 0;
 
@@ -113,6 +120,7 @@ namespace AnomalyDetectionWebService.Models
                 tmp.feature2 = orderedFeatures[mostCorrelative_idx];
                 result.Add(tmp);
             }
+            if (!shouldContinueLearning()) return null;
             return result;
         }
 
