@@ -38,3 +38,6 @@ The second part is client-side(browser page) which uses the server and enable no
 * I recommend use swagger, read comments at AnomalyDetectionController.cs, and if need, see the Request/response object that are resolved via json parse to get idea what each uri can give ,what possible return http status can be, and what is the way to use the uri correctly
 * For developers for this program - server side - be careful about asyncronic programming, match-type from client(for example check fields aren't null, corrent range of num etc), json resolver (works for known + public proprties when make json to string)
 * See also the uri description + Uml classes diagram for server side [Uri_And_Uml.pdf](Uri_And_Uml.pdf)
+* Note that even if the exception is caught in debugging it might seems that it doesn't. (It is disadvantage so you can't 
+run reliable server from the debugger)
+From (first "note" box) : https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/exception-handling-task-parallel-library
