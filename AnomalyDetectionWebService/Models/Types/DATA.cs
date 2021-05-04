@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace AnomalyDetectionWebService
+namespace AnomalyDetectionWebService.Models.Types
 {
 
 

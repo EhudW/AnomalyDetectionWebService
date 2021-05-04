@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Reflection;
-using AnomalyAlgorithm;
+using AnomalyDetectionWebService.Models.Utils;
 using System.Threading.Tasks;
-
+using AnomalyDetectionWebService.Models.Types;
 // Span should be list of 2 elements: [start_inclusive, end_exclusive]
 using Span = System.Collections.Generic.List<long>;
 
-namespace AnomalyDetectionWebService
+namespace AnomalyDetectionWebService.Models
 {
     // class to handle with list of normal models and detection of them
     //

@@ -1,6 +1,6 @@
 using System;
 
-namespace AnomalyDetectionWebService
+namespace AnomalyDetectionWebService.Models.Types
 {
     // { model_id: <int>, upload_time: <datetime>, status: “ready” | “pending” }
     // example for upload_time: 2021-04-22T19:15:32+02.00

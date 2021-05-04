@@ -7,6 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using AnomalyDetectionWebService.Controllers;
 using System.Threading.Tasks;
+using AnomalyDetectionWebService.Models;
+using AnomalyDetectionWebService.Models.Types;
+using AnomalyDetectionWebService.Models.Utils;
 
 namespace AnomalyDetectionWebService
 {

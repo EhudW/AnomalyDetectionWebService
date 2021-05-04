@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AnomalyDetectionWebService.Models.Utils;
 
 using System.Text.Json.Serialization;
 
 // Span should be list of 2 elements: [start_inclusive, end_exclusive]
 using Span = System.Collections.Generic.List<long>;
 
-namespace AnomalyAlgorithm
+//instead of namespace AnomalyAlgorithm
+namespace AnomalyDetectionWebService.Models
 {
     public class CorrelatedFeatures
     {

@@ -4,7 +4,7 @@ using System.Linq; // float[].Average();
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AnomalyAlgorithm
+namespace AnomalyDetectionWebService.Models.Utils
 {
 
 	public class Line

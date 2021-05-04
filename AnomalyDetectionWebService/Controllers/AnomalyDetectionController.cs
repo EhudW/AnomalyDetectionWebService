@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.IO;
+using AnomalyDetectionWebService.Models;
+using AnomalyDetectionWebService.Models.Types;
 
 /* 
     http status codes from wikipedia: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
@@ -73,7 +75,7 @@ namespace AnomalyDetectionWebService.Controllers
         [HttpPost]
         public MODEL UploadModelData([FromBody] Train_Data data, [FromQuery(Name = "model_type")] string model_type)
         {
-            if (!AnomalyAlgorithm.AnomalyDetection.IsSupportedMethod(model_type) || data.train_data == null) {
+            if (!AnomalyDetection.IsSupportedMethod(model_type) || data.train_data == null) {
                 HttpContext.Response.StatusCode = 400;
                 return null;
             }

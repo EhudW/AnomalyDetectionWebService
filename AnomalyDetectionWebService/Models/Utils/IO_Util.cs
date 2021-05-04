@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using AnomalyAlgorithm;
+using AnomalyDetectionWebService.Models.Types;
 
-namespace AnomalyDetectionWebService
+
+namespace AnomalyDetectionWebService.Models.Utils
 {
     public class ExtendedModelInfo
     {
