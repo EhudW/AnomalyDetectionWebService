@@ -37,4 +37,4 @@ The second part is client-side(browser page) which uses the server and enable no
 * AnomalyDetectoion class can support trivial algorithms, while all you need in order to add your algorithm is to implements ThresholdMethods and CheckerMethods correctly and add them to the dictionaries in the class.
 * I recommend use swagger, read comments at AnomalyDetectionController.cs, and if need, see the Request/response object that are resolved via json parse to get idea what each uri can give ,what possible return http status can be, and what is the way to use the uri correctly
 * For developers for this program - server side - be careful about asyncronic programming, match-type from client(for example check fields aren't null, corrent range of num etc), json resolver (works for known + public proprties when make json to string)
-* See also the Uml classes diagram for server side 
+* See also the uri description + Uml classes diagram for server side [Uri_And_Uml.pdf](Uri_And_Uml.pdf)
