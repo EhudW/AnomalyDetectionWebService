@@ -15,4 +15,4 @@ Span                => first defined in    AnomalyDetection.cs;  AnomalyDetector
 								[start(inclusive), end(exclusive)]
 
 See also Uri_And_UML.pdf at root folder of the github repository,
-for raw short-text about the server-side classes:
+for "raw short-text about the server-side classes"

@@ -55,6 +55,32 @@ namespace AnomalyDetectionWebService.Controllers
         private static Counter L_LearnDetectAmount = new Counter() { Count = 0 };
         private static readonly int MaxLearnDetectAmount = 20;
 
+        // check Predict_Data is valid, meaning has correct field values
+        private bool IsValidData(Predict_Data data)
+        {
+            return data != null && IsValidData(data.predict_data);
+        }
+        // check Train_Data is valid, meaning has correct field values
+        private bool IsValidData(Train_Data data)
+        {
+            return data != null && IsValidData(data.train_data);
+        }
+        // check Dictionary<string , List<float>> is valid, meaning has correct field values
+        private bool IsValidData(Dictionary<string , List<float>> data)
+        {
+            // check data isn't null
+            if (data == null) return false;
+            int length = -1;
+            // check that (if there are) each value[==list of values of timesteps] has the same size
+            foreach(var feature_list in data.Values)
+            {
+                if (feature_list == null) return false;
+                // first time define the size
+                if (length == -1) length = feature_list.Count;
+                if (length != feature_list.Count) return false;
+            }
+            return true;
+        }
         public static bool InitADM(AnomalyDetectorsManager newADM)
         {
             if (adm != null) return false;
@@ -75,7 +101,7 @@ namespace AnomalyDetectionWebService.Controllers
         [HttpPost]
         public MODEL UploadModelData([FromBody] Train_Data data, [FromQuery(Name = "model_type")] string model_type)
         {
-            if (!AnomalyDetection.IsSupportedMethod(model_type) || data.train_data == null) {
+            if (!AnomalyDetection.IsSupportedMethod(model_type) || !IsValidData(data)) {
                 HttpContext.Response.StatusCode = 400;
                 return null;
             }
@@ -165,7 +191,7 @@ namespace AnomalyDetectionWebService.Controllers
         [HttpPost]
         public ANOMALY DetectAnomalies([FromBody] Predict_Data data, [FromQuery(Name = "model_id")] int model_id)
         {
-            if (data.predict_data == null)
+            if (!IsValidData(data))
             {
                 HttpContext.Response.StatusCode = 400;
                 return null;
