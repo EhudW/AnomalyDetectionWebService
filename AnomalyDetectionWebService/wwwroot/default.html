@@ -1,4 +1,64 @@
-<H1>
-Hello World!
-</H1>
-here we will include js script for client-side webpage
+<!DOCTYPE html>
+<html ondrop="allowDrop(event)" ondragover="allowDrop(event)">
+<head>
+    <meta charset="utf-8" />
+    <style>
+        .grid-container {
+            display: grid;
+            grid-template-columns: minmax(0, 4fr) minmax(0, 1fr);
+            grid-template-rows: minmax(0, 3fr) minmax(0, 2fr);
+            grid-template-areas:
+                'graph list'
+                'table dropbox';
+            grid-gap: 4px;
+            background-color: #2196F3;
+            padding: 1px;
+        }
+
+            .grid-container > div {
+                background-color: rgba(255, 255, 255, 0.8);
+                text-align: center;
+                padding: 1px 0;
+                font-size: 30px;
+            }
+
+        .graph_css {
+            grid-area: graph;
+        }
+
+        .list_css {
+            grid-area: list;
+        }
+
+        .table_css {
+            grid-area: table;
+        }
+
+        .dropbox_css {
+            grid-area: dropbox;
+        }
+    </style>
+</head>
+<body>
+    <!--<script src="model.js"></script>-->
+    <!--<script src="graph.js"></script>-->
+    <!--<script src="list.js"></script>-->
+    <!--<script src="table.js"></script>-->
+    <!--<script src="drop_box.js"></script>-->
+
+    <div class="grid-container">
+        <div class="graph_css" id="graph">Graph</div>
+        <div class="list_css" id="list">model-list</div>
+        <div class="table_css" id="table">model-table</div>
+        <div class="dropbox_css" id="drop">drop</div>
+    </div>
+
+
+    <script>
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+    </script>
+
+</body>
+</html>
