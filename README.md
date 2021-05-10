@@ -28,6 +28,10 @@ Note that some types are within other cs source files.
 * [ADWS/ADWS/Properties/](AnomalyDetectionWebService/Properties/)  Contains launchSettings.json to set if it's developing / production environment
 * [ADWS/ADWS/wwwroot/](AnomalyDetectionWebService/wwwroot/)  The folder which contain the page the server sends to the client. It's static resource of the server, but it operates dynamicaly in the client browser 
 
+# License
+Before cloning the project or using files in [ADWS/ADWS/wwwroot/](AnomalyDetectionWebService/wwwroot/) be aware that files under MIT License/other license are in used, for educational purpose only. Please check the license before! Those files might be imported within other files(like default.html) even if you not notice. for example:
+* wwwroot/MIT/chart.min.js (Chart.js, MIT license) , [website](https://www.chartjs.org/) , [license info](https://www.chartjs.org/docs/latest/#license)
+* wwwroot/MIT/ag-grid-community.min.js (AG Grid, MIT license) , [website](https://www.ag-grid.com/) , [license info](https://www.ag-grid.com/eula/AG-Grid-Community-License.html)
 
 # Pre requirements
 * For establishing the server: asp .net core 5.0
