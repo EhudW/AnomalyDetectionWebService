@@ -1,8 +1,8 @@
 ﻿//ml_ prefix to avoid collision with table
 const ml_columnDefs = [
     { headerName: "id", field: "model_id", sortable: true },
-    { headerName: "upload", field: "upload_time", sortable: true },
-    { headerName: "status", field: "status", sortable: true }
+    { headerName: "status", field: "status", sortable: true }, 
+    { headerName: "upload", field: "upload_time", sortable: true }
 ];
 
 // specify the data [example]
