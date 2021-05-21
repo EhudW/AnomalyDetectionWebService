@@ -25,7 +25,7 @@ The second part is client-side(browser page) which uses the server and enable no
 Note that some types are within other cs source files.
 * [ADWS/ADWS/Models/Utils](AnomalyDetectionWebService/Models/Utils)  Statics classes, including IO_Utils and MathUtil
 * [ADWS/ADWS/NormalModelsDB/](AnomalyDetectionWebService/NormalModelsDB/)   Folder to store the trained data, the correlative feature according to normal flight
-* [ADWS/ADWS/Properties/](AnomalyDetectionWebService/Properties/)  Contains launchSettings.json to set if it's developing / production environment
+* [ADWS/ADWS/Properties/](AnomalyDetectionWebService/Properties/)  Contains launchSettings.json to set if it's developing / production environment and ip + port for the server.
 * [ADWS/ADWS/wwwroot/](AnomalyDetectionWebService/wwwroot/)  The folder which contain the page the server sends to the client. It's static resource of the server, but it operates dynamicaly in the client browser 
 
 # License
