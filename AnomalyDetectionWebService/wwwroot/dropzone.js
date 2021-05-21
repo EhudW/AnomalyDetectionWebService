@@ -53,7 +53,7 @@ async function parseFile(file) {
 
 //receive file from drop and pass it to the model as a dictionary
 async function dropHandler(event) {
-    event.preventDefault();
+    allowDrop(event);
     var is_hybrid = document.getElementById("hybrid").checked == true;
     var is_anomaly = document.getElementById("anomaly").checked == true;
     var drop = document.getElementById("The_File");

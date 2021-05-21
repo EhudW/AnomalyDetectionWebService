@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html ondrop="allowDrop(event)" ondragover="allowDrop(event)">
+<html ondrop="dragHtml=false;allowDrop(event);"  ondragover="dragHtml=true;allowDrop(event);"
+      ondragleave="dragHtml=false;allowDrop(event);">
 <head>
     <link rel="icon" href="favicon.ico">
     <meta charset="utf-8" />
@@ -63,8 +64,8 @@
             <input type="radio" id="hybrid" name="detection_type" value="hybrid">
             <label for="hybrid" style="font-size:small;">Hybrid</label><br/>
 
-            <div id="The_Drop" style="border:3px solid black; height:150px;" ondrop="dropHandler(event)"
-                ondragover="allowDrop(event)">
+            <div id="The_Drop" style="border:3px solid black; height:150px;" ondrop="dragDropZone=false;dropHandler(event);"
+                ondragover="dragDropZone=true;allowDrop(event);" ondragleave="dragDropZone=false;allowDrop(event);">
                 <span style="font-size:small;" id="The_File"></span>
             </div>
 
@@ -95,8 +96,24 @@
 
 
     <script>
-        function allowDrop(ev) {
-            ev.preventDefault();
+        var dragHtml = false;
+        var dragDropZone = false;
+        function allowDrop(event) {
+            event.preventDefault();
+            var state;
+            if (dragDropZone)
+                state = 1;
+            else
+                state = dragHtml ? 2 : 0;
+
+            var color = { 0: "black", 1: "green", 2: "red" };
+            var style = { 0: "solid", 1: "solid", 2: "dashed" };
+            var effect = { 0: "none", 1: "move", 2: "none" };
+
+            event.dataTransfer.dropEffect = effect[state];
+            document.getElementById("The_Drop").style.borderColor = color[state];
+            document.getElementById("The_Drop").style.borderStyle = style[state];
+            current = state;
         }
     </script>
 

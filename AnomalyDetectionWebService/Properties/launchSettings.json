@@ -22,6 +22,7 @@
       "dotnetRunMessages": "true",
       "launchBrowser": true,
       "launchUrl": "http://localhost:9876/", //"launchUrl": "swagger",
+      // here set your ip & port for the server:
       "applicationUrl": "http://localhost:9876",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development" // "Production"
