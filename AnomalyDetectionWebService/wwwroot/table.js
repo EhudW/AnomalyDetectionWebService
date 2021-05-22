@@ -67,7 +67,7 @@ function update_base_stats(values_dictionary) {
         var avg = sum / values_dictionary[key].length;
         tb_x.push({
             "feature": key, "highest": high, "lowest": low, "average": avg,
-            "is anomaly": "NO", "reason": "--"
+            "is anomaly": "--", "reason": "--"
         })
     }
     return tb_x;
@@ -86,6 +86,9 @@ function update_anomalies(values_dictionary, anomalies_dictionary) {
         if (rows[row].feature in anomalies_dictionary) {
             rows[row]["is anomaly"] = "YES";
             rows[row].reason = anomalies_dictionary[rows[row].feature];
+        }
+        else {
+            rows[row]["is anomaly"] = "NO";
         }
     }
     tb_gridOptions.api.setRowData(rows);
