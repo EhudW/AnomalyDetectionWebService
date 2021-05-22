@@ -6,12 +6,12 @@ const labels = ["1","2","3","4","5","6","7"];
 const data = {
     labels: labels,
     datasets: [{
-        label: 'My First Dataset',
-        data: [65, 59, 80, 81, 56, 55, 40],
-        fill: false,
-        borderColor: 'rgb(75, 192, 192)'
-       // tension: 0.1
-    },
+            label: 'My First Dataset',
+            data: [65, 59, 80, 81, 56, 55, 40],
+            fill: false,
+            borderColor: 'rgb(75, 192, 192)'
+            // tension: 0.1
+        },
         {
             label: 'My second Dataset',
             data: [85, 77, 88, 88, 59, 59, 20],
@@ -21,6 +21,7 @@ const data = {
         }
     ]
 };
+
 /*
 const data = {
     //labels: labels,
@@ -58,8 +59,37 @@ const gr_config = {
 var ctx = document.getElementById('myChart');
 var myChart = new Chart(ctx, gr_config);
 
+function add_attribute(name, values) {
+    myChart.data.datasets.push({
+        label: name,
+        data: values,
+        fill: false,
+        borderColor: 'rgb(255, 0, 0)'
+            //tension: 0.1
+    })
+    myChart.update()
+}
+
+function remove_attribute(name) {
+    for (var i in myChart.data.datasets)
+        if (myChart.data.datasets[i].label === name)
+            break;
+    myChart.data.datasets.splice(i, 1)
+    myChart.update()
+}
+
+function cleanGraph() {
+    while (myChart.data.datasets.length > 0) {
+        myChart.data.datasets.pop()
+    }
+    myChart.update()
+}
+
+
+
 // to update
 // gr_config.data = ....
-/*myChart.update('none');//none for no animation 
- myChart.clear() to clear all
+/*
+ * myChart.update('none');//none for no animation 
+ * myChart.clear() to clear all
  */
