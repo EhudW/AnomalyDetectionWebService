@@ -65,4 +65,7 @@ async function dropHandler(event) {
     //model.new_drop(input_dictionary, (is_anomaly ? true : false), (is_hybrid ? true : false));
     //here we print the dictionary to console for testings
     console.log(input_dictionary);
+    //update_data(input_dictionary);
+    var myAnomaliesReasons = { "B": "Line Regression with C", "C": "Line Regression with B" };
+    update_anomalies(input_dictionary, myAnomaliesReasons);
 }

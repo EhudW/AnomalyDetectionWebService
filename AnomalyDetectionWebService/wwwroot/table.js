@@ -7,17 +7,11 @@ const tb_columnDefs = [
     { field: "lowest", sortable: true },
     { field: "average", sortable: true },
     { field: "is anomaly", sortable: true },
-    { field: "reason", sortable: true }
+    { field: "reason" }
 ];
 
 // specify the data [example]
-const tb_rowData = [
-    { "feature": "speed", "highest": "WOW", "lowest": "PFF", "average": "100", "is anomaly": "NO", "reason": "--" },
-    { "feature": "height", "highest": "Amazing", "lowest": "WHAT", "average": "98", "is anomaly": "YES", "reason": "Linear Regerssion with B" },
-    { "feature": "yaw", "highest": "ok", "lowest": "LOW", "average": "99", "is anomaly": "NO", "reason": "--" },
-    //{ "feature": "pitch", "highest value": "sounds good"},
-    //{ "feature": "roll", "highest value": "101.2"},
-   // { "feature": "temp", "highest value": "Boxter"}
+var tb_rowData = [
 ];
 
 // let the grid know which columns and what data to use
@@ -41,32 +35,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // NOT called if all the data changed by gridOptions.api.setRowData(x)
 function tb_onRowSelected(event) {
-    //event.node.data.feature  speed/roll ...
-    //event.node.isSelected()  true/false
+    if (event.node.isSelected()) {
+        //model.add_attr(event.node.data.feature);
+    }
+    else {
+        //model.remove_attr(event.node.data.feature);
+    }
 }
+//event.node.data.feature  speed/roll ...
+//event.node.isSelected()  true/false
+
 
 
 // change all data by
 // var tb_x = [{ "feature": "speed", "some information": "WOW"}, ...]
 // tb_gridOptions.api.setRowData(tb_x);
-
-//average, highest value, lowest value, is anomaly, reason
-
-
-
-function update_data(values_dictionary) {
+function update_base_stats(values_dictionary) {
     var tb_x = [];
     for (let key in values_dictionary) {
         var sum = 0;
         var high = values_dictionary[key][0];
         var low = values_dictionary[key][0];
-        var tmp;
-        for (let i = 0; i < values_dictionary[key].length; i++) {
-            (high < values_dictionary[key][i]) ? (high = values_dictionary[key][i]) : tmp = high;
-            (low > values_dictionary[key][i]) ? (low = values_dictionary[key][i]) : tmp = high;
-            sum += values_dictionary[key][i];
+        var length = values_dictionary[key].length;
+        for (let i = 0; i < length; i++) {
+            if (high < values_dictionary[key][i])
+                high = values_dictionary[key][i];
+            if (low > values_dictionary[key][i])
+                low = values_dictionary[key][i];
+            sum += +values_dictionary[key][i];
         }
         var avg = sum / values_dictionary[key].length;
-
+        tb_x.push({
+            "feature": key, "highest": high, "lowest": low, "average": avg,
+            "is anomaly": "NO", "reason": "--"
+        })
     }
+    return tb_x;
+}
+
+
+function update_data(values_dictionary) {
+    var tb_x = update_base_stats(values_dictionary);
+    tb_gridOptions.api.setRowData(tb_x);
+}
+
+
+function update_anomalies(values_dictionary, anomalies_dictionary) {
+    var rows = update_base_stats(values_dictionary);
+    for (let row in rows) {
+        if (rows[row].feature in anomalies_dictionary) {
+            rows[row]["is anomaly"] = "YES";
+            rows[row].reason = anomalies_dictionary[rows[row].feature];
+        }
+    }
+    tb_gridOptions.api.setRowData(rows);
 }
