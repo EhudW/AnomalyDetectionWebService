@@ -35,7 +35,7 @@ Before cloning the project or using files in [ADWS/ADWS/wwwroot/](AnomalyDetecti
 
 # Pre requirements
 * For establishing the server: asp .net core 5.0
-* (Developing is recommended in visual studio 2019 with/without 'swagger' tool)
+* (Developing is recommended in visual studio 2019 with/without 'swagger' tool, you may need to double click in "solution explorer" on the AnomalyDetectionWebService.sln)
 * For the client page : normal browser which support javascript and html
 
 # Youtube link:
