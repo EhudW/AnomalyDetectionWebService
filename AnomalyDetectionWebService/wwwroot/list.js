@@ -31,7 +31,7 @@ const set2= [
 // let the grid know which columns and what data to use
 const ml_gridOptions = {
     columnDefs: ml_columnDefs,
-    rowData: ml_rowData,
+    rowData: [],
     rowSelection: 'single',
     rowMultiSelectWithClick: false,
     suppressRowDeselection: true,
@@ -61,15 +61,21 @@ function ml_onRowSelected(event) {
     //event.node.isSelected()  true/false
 }
 
+let blink_rate = 0.0;
 
-function restart() {
+function blink() { blink_rate = 1.5; }
+setInterval(() => {
+    if (blink_rate < 0) blink_rate = 0;
+    document.getElementById("blink_txt").style.opacity = Math.min(1, blink_rate);
+    blink_rate -= 0.06;
+}, 200);
 
-}
 
 function refresh(list) {
     var selected_model_id = getSelectedModelID()
     ml_gridOptions.api.setRowData(list)
     selectAfterRefresh(selected_model_id)
+    blink();
 }
 
 
@@ -87,6 +93,7 @@ setTimeout(() => {
     ml_gridOptions.api.setRowData(ml_x)
 }, 19000)
 */
+
 
 function selectAfterRefresh(model_id) {
     document.getElementById("remove_button").disabled = true
