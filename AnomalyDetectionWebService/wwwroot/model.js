@@ -1,7 +1,6 @@
 ﻿function new_drop(input_dictionary, anomaly_model, is_hybrid) {
     var url;
     var data;
-    console.log(${ anomaly_model} );
     if (anomaly_model >= 0) {
         url = '/api/anomaly?model_id=' + anomaly_model;
         data = {predict_data: input_dictionary }
@@ -15,7 +14,7 @@
         }
         data = {train_data: input_dictionary }
     }
-    var model_status = update_data(url, 'POST', data);
+    var model_status = send_update_data(url, 'POST', data);
     // add_model_list(model_status);
 };
 
@@ -27,11 +26,11 @@ function remove_attr(name) {
 
 }
 
-function update_data(url, type, data) {
+function send_update_data(url, type, data) {
     var resp = $.ajax({
         url: url,
         type: type,
-        data: data,
+        data: JSON.stringify({ data }),
         contentType: 'application/json',
         processData: false,
         dataType: 'json',
