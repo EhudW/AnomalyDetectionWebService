@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html ondrop="dragHtml=false;allowDrop(event);"  ondragover="dragHtml=true;allowDrop(event);"
       ondragleave="dragHtml=false;allowDrop(event);">
+
 <head>
     <link rel="icon" href="favicon.ico">
     <meta charset="utf-8" />
@@ -41,20 +42,18 @@
             grid-area: dropbox;
         }
     </style>
+    <script type="text/javascript"
+            src="jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <div class="grid-container">
-        <!--style="height: 450px; width: 850px;"-->
-        <div class="graph_css" id="graph">
+        <div class="graph_css" id="graph" style="height: 450px; width: 850px;">
             <canvas id="myChart"></canvas>
         </div>
-        <!--style="height: 410px;"-->
-        <div id="myGrid_model_list" class="list_css ag-theme-alpine">
+        <div id="myGrid_model_list" style="height: 410px;" class="list_css ag-theme-alpine">
             <input id="remove_button" type="submit" value="remove" />
-            <span style="color: red; font-weight: bold; opacity: 0; font-size: small;" id="blink_txt" >updated</span>
         </div>
-        <!--style="height: 300px;"-->
-        <div id="myGrid_table" class="table_css ag-theme-alpine"></div>
+        <div id="myGrid_table" style="height: 300px;" class="table_css ag-theme-alpine"></div>
         <div class="dropbox_css" id="drop">
             <span style="font-size:medium;">Please select your action:</span><br />
             <input type="radio" checked="checked" id="anomaly" name="user_action" value="anomaly">
@@ -97,7 +96,11 @@
     <script src="table.js"></script>
     <script src="list.js"></script>
 
+    <script src="model.js"></script>
 
+    <script>setInterval(refresh, 1);
+        setInterval(update_anomalies, 1);
+    </script>
 
     <script>
         var dragHtml = false;
