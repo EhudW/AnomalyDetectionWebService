@@ -1,5 +1,6 @@
 ﻿//var csv is the CSV file with headers
 function csvJSON(csv) {
+
     csv = csv.replace("\r\n", "\n").replace("\r", "\n");
     var lines = csv.split("\n");
     var result = {};
@@ -39,6 +40,7 @@ function csvJSON(csv) {
             result[headers[j]].push(currentline[j]);
         }
     }
+
     //return the dictionary
     return result;
 }
@@ -60,9 +62,9 @@ async function dropHandler(event) {
         (is_anomaly ? "" : (is_hybrid ? "hybrid " : "regression ") + "algorithem.");
     var input_dictionary = await parseFile(event.dataTransfer.items[0].getAsFile());
     //dropzone should know the model in order to  activate model.new_drop
-    new_drop(input_dictionary, (is_anomaly ? model_id : -1), (is_hybrid ? true : false));
+    new_drop(input_dictionary, (is_anomaly ? true : false), (is_hybrid ? true : false));
     //here we print the dictionary to console for testings
-    
+    console.log(input_dictionary);
     //update_data(input_dictionary);
     var myAnomaliesReasons = { "B": "Line Regression with C", "C": "Line Regression with B" };
     update_anomalies(input_dictionary, myAnomaliesReasons);

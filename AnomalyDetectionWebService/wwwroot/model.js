@@ -3,7 +3,7 @@
     var data;
     if (anomaly_model >= 0) {
         url = '/api/anomaly?model_id=' + anomaly_model;
-        data = {predict_data: input_dictionary }
+        data = { predict_data: input_dictionary }
     }
     else {
         url = '/api/model?model_type=';
@@ -12,9 +12,9 @@
         } else {
             url = url + 'regression';
         }
-        data = {train_data: input_dictionary }
+        data = { train_data: input_dictionary }
     }
-    var model_status = send_update_data(url, 'POST', data);
+    var model_status = update_data(url, 'POST', data);
     // add_model_list(model_status);
 };
 
@@ -26,7 +26,7 @@ function remove_attr(name) {
 
 }
 
-function send_update_data(url, type, data) {
+function update_data(url, type, data) {
     var resp = $.ajax({
         url: url,
         type: type,
