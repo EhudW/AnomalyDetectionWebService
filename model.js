@@ -1,17 +1,20 @@
 ﻿function new_drop(input_dictionary, anomaly_model, is_hybrid) {
     var url;
+    var data;
     if (anomaly_model >= 0) {
-        url = 'http://localhost/api/anomaly?model_id=' + anomaly_model;
+        url = '/api/anomaly?model_id=' + anomaly_model;
+        data = {predict_data: input_dictionary }
     }
     else {
-        url = 'http://localhost/api/model?model_type=';
+        url = '/api/model?model_type=';
         if (is_hybrid) {
             url = url + 'hybrid';
         } else {
             url = url + 'regression';
         }
+        data = {train_data: input_dictionary }
     }
-    var model_status = update_data(url, 'POST', input_dictionary);
+    var model_status = update_data(url, 'POST', data);
     // add_model_list(model_status);
 };
 
@@ -28,7 +31,7 @@ function update_data(url, type, data) {
         url: url,
         type: type,
         data: data,
-        contentType: false,
+        contentType: 'application/json',
         processData: false,
         dataType: 'json',
         async: false
