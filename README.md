@@ -32,13 +32,19 @@ Note that some types are within other cs source files.
 Before cloning the project or using files in [ADWS/ADWS/wwwroot/](AnomalyDetectionWebService/wwwroot/) be aware that files under MIT License/other license are in used, for educational purpose only. Please check the license before! Those files might be imported within other files(like default.html) even if you not notice. for example:
 * wwwroot/MIT/chart.min.js (Chart.js, MIT license) , [website](https://www.chartjs.org/) , [license info](https://www.chartjs.org/docs/latest/#license)
 * wwwroot/MIT/ag-grid-community.min.js (AG Grid, MIT license) , [website](https://www.ag-grid.com/) , [license info](https://www.ag-grid.com/eula/AG-Grid-Community-License.html)
+* wwwroot/MIT/jquery-3.6.0.min.js (jQuery, MIT license) , [website](https://jquery.org/) , [license info](https://jquery.org/license/)
 
 # Pre requirements
 * For establishing the server: asp .net core 5.0
 * (Developing is recommended in visual studio 2019 with/without 'swagger' tool, you may need to double click in "solution explorer" on the AnomalyDetectionWebService.sln)
-* For the client page : normal browser which support javascript and html
+* For the client page : normal updated browser which support javascript and html
 
 # Youtube link:
+
+# CSV files
+The csv files that are used to wwwroot/default.html should be with first line of features names seperated by comma. Rest of lines should be normal real numbers(float, not NaN / infinty) seperated by comma, each line has same amount of fields(like table, columns are the features, cells in rows(except for the header) are the values).
+The test/detect csv file that uses the normal model which was learned by the train file, the test file must contain at least all the features that was at the train file.
+See examples in [ADWS/ADWS/wwwroot/train_test_csv](AnomalyDetectionWebService/wwwroot/train_test_csv).
 
 # Further words
 * The project isn't suitable for private / secure communication, both from technical issues, and not taking security as most important thing while developing it.
