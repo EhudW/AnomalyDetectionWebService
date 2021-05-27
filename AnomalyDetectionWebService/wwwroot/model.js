@@ -11,10 +11,12 @@ function new_drop(input_dictionary, is_anomaly, is_hybrid) {
         update_anomalies(data_dictionary, anomalies_dictionary["reason"]);
     }
     else {
-        model_path(data_dictionary, is_hybrid);
+        var x = model_path(data_dictionary, is_hybrid);
         anomalies_dictionary = {};
         update_data(data_dictionary);
+        return x;
     }
+
 };
 
 // Send anomaly request to server, and refresh list 
@@ -34,8 +36,9 @@ function model_path(input_dictionary, is_hybrid) {
         url = url + 'regression';
     }
     var data = { "train_data": input_dictionary }
-    send_to_server(url, 'POST', data);
+    var x = send_to_server(url, 'POST', data);
     refresh_list_from_server();
+    return x.model_id;
 }
 
 // Update the graph that a new attribute has been selected

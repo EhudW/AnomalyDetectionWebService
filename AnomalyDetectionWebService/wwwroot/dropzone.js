@@ -62,10 +62,10 @@ async function dropHandler(event) {
         (is_anomaly ? "" : (is_hybrid ? "hybrid " : "regression ") + "algorithem.");
     var input_dictionary = await parseFile(event.dataTransfer.items[0].getAsFile());
     //dropzone should know the model in order to  activate model.new_drop
-    new_drop(input_dictionary, (is_anomaly ? true : false), (is_hybrid ? true : false));
-    //here we print the dictionary to console for testings
-    console.log(input_dictionary);
-    //update_data(input_dictionary);
+    var model_id = new_drop(input_dictionary, (is_anomaly ? true : false), (is_hybrid ? true : false));
+    if (model_id != undefined) {
+        drop.innerHTML += "<br/> new model is " + model_id;
+    }
 }
 
 function disable_buttons(event) {
