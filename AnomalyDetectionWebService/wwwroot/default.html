@@ -60,6 +60,7 @@
         <div id="myGrid_table" class="table_css ag-theme-alpine"></div>
         <!--This is the dropzone that receive the CSV file from the user-->
         <div class="dropbox_css" id="drop">
+            <br/>
             <span style="font-size:medium;">Please select your action:</span><br />
             <!--User select if he want to laern the flight or detect anomalies.-->
             <input type="radio" checked="checked" id="upload" name="user_action" value="upload" onchange="enable_buttons(event)">
@@ -81,57 +82,25 @@
                  ondragover="dragDropZone=true;allowDrop(event);" ondragleave="dragDropZone=false;allowDrop(event);">
                 <span style="font-size:small;" id="The_File">Drop the CSV file here</span>
             </div>
-
-
         </div>
     </div>
 
 
-
-    <!--<script src="model.js"></script>-->
-    <!--<script src="drop_box.js"></script>-->
-    <!---->
-    <!---->
-    <!-- https://www.chartjs.org/ license:MIT-->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.2.0/chart.min.js"></script> -->
-    <script src="MIT/chart.min.js"></script>
-    <script src="graph.js"></script>
-    <script src="./dropzone.js"></script>
-    <!---->
-    <!---->
-    <!-- https://www.ag-grid.com/
-        license MIT:https://www.ag-grid.com/eula/AG-Grid-Community-License.html -->
-    <!-- <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.js"></script> -->
+    <!--Include the libraries (MIT license: for educational purpose): Table,  Graph, jQuery-->
+    <!-- https://www.ag-grid.com/ -->
     <script src="MIT/ag-grid-community.min.js"></script>
-    <script src="table.js"></script>
-    <script src="list.js"></script>
-
-
-
-    <script>
-        var dragHtml = false;
-        var dragDropZone = false;
-        function allowDrop(event) {
-            event.preventDefault();
-            var state;
-            if (dragDropZone)
-                state = 1;
-            else
-                state = dragHtml ? 2 : 0;
-
-            var color = { 0: "black", 1: "green", 2: "red" };
-            var style = { 0: "solid", 1: "solid", 2: "dashed" };
-            var effect = { 0: "none", 1: "move", 2: "none" };
-
-            event.dataTransfer.dropEffect = effect[state];
-            document.getElementById("The_Drop").style.borderColor = color[state];
-            document.getElementById("The_Drop").style.borderStyle = style[state];
-            current = state;
-        }
-    </script>
+    <!-- https://www.chartjs.org/ license:MIT-->
+    <script src="MIT/chart.min.js"></script>
     <script type="text/javascript"
-            src="jquery-3.6.0.min.js"></script>
+            src="MIT/jquery-3.6.0.min.js"></script>
+
+    <!--Developer libraries:-->
+    <script src="graph.js"></script>
+    <script src="list.js"></script>
+    <script src="table.js"></script>
+    <script src="./dropzone.js"></script>
     <script src="model.js"></script>
+
 
 
 </body>

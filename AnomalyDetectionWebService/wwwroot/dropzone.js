@@ -78,3 +78,29 @@ function enable_buttons(event) {
     document.getElementById("algo_detection").style.visibility = 'visible';
    // document.getElementById("hybrid").style.opacity = 1;
 }
+
+
+//Set those global vars off in order to calculate the current place of the dragged file.
+var dragHtml = false;   //true= drag file is over the page. false- no dragged file.
+var dragDropZone = false;   //same question specificly for the dropzone.
+//Prevenr browser default for drag/drop (the default is to open the file in a new tab),
+//in order to enable our actions to the drag/ drop events.
+//In addition this function mark the edges of the dropzone when you drag a file
+//according to the place that the cursor is on the screen.
+function allowDrop(event) {
+    event.preventDefault();
+    var state;
+    if (dragDropZone)
+        state = 1;
+    else
+        state = dragHtml ? 2 : 0; 
+    //0 - normal state (no file), 1 - file is on dropzone, 2 - file is on the rest of the page.
+
+    var color = { 0: "black", 1: "green", 2: "red" };
+    var style = { 0: "solid", 1: "solid", 2: "dashed" };
+    var effect = { 0: "none", 1: "move", 2: "none" };
+
+    event.dataTransfer.dropEffect = effect[state];
+    document.getElementById("The_Drop").style.borderColor = color[state];
+    document.getElementById("The_Drop").style.borderStyle = style[state];
+}
