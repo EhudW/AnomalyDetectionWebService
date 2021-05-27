@@ -1,8 +1,10 @@
-﻿function new_drop(input_dictionary, anomaly_model, is_hybrid) {
+﻿var data_dictionary = {};
+
+function new_drop(input_dictionary, is_anomaly, is_hybrid) {
     var url;
     var data;
-    if (anomaly_model >= 0) {
-        url = '/api/anomaly?model_id=' + anomaly_model;
+    if (is_anomaly) {
+        url = '/api/anomaly?model_id=1';
         data = { predict_data: input_dictionary }
     }
     else {
@@ -15,7 +17,7 @@
         data = { train_data: input_dictionary }
     }
     var model_status = update_data(url, 'POST', data);
-    // add_model_list(model_status);
+    add_model_list(model_status);
 };
 
 function add_attr(name) {
@@ -26,11 +28,11 @@ function remove_attr(name) {
 
 }
 
-function update_data(url, type, data) {
+function update_data(url, type, data_) {
     var resp = $.ajax({
         url: url,
         type: type,
-        data: JSON.stringify({ data }),
+        data: { data: JSON.stringify(data_) },
         contentType: 'application/json',
         processData: false,
         dataType: 'json',
@@ -40,4 +42,8 @@ function update_data(url, type, data) {
         console.log(xhr.status);
     });
     return JSON.parse(resp.responseText);
+}
+
+function add_model_list(model_status) {
+
 }

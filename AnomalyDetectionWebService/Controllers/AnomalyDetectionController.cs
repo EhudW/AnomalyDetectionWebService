@@ -63,6 +63,7 @@ namespace AnomalyDetectionWebService.Controllers
         // check Train_Data is valid, meaning has correct field values
         private bool IsValidData(Train_Data data)
         {
+
             return data != null && IsValidData(data.train_data);
         }
         // check Dictionary<string , List<float>> is valid, meaning has correct field values
@@ -101,6 +102,7 @@ namespace AnomalyDetectionWebService.Controllers
         [HttpPost]
         public MODEL UploadModelData([FromBody] Train_Data data, [FromQuery(Name = "model_type")] string model_type)
         {
+            Console.WriteLine(data);
             if (!AnomalyDetection.IsSupportedMethod(model_type) || !IsValidData(data)) {
                 HttpContext.Response.StatusCode = 400;
                 return null;
