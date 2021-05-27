@@ -45,6 +45,7 @@ const ml_gridOptions = {
 document.addEventListener('DOMContentLoaded', () => {
     const ml_gridDiv = document.querySelector('#myGrid_model_list');
     new agGrid.Grid(ml_gridDiv, ml_gridOptions);
+    refresh_list_from_server();
 });
 
 // NOT called if all the data changed by    gridOptions.api.setRowData(x)
@@ -103,9 +104,12 @@ function selectAfterRefresh(model_id) {
 }
 
 function remove_selected(event) {
-    if (getSelectedModelID() != undefined) {
-        console.log("remove the " + getSelectedModelID())
+    var id = getSelectedModelID();
+    if (id != undefined) {
+        send_to_server("/api/model?model_id=" + id, "DELETE", "");
+        refresh_list_from_server();
     }
+
 }
 
 function getSelectedModelID() {

@@ -37,7 +37,7 @@ function csvJSON(csv) {
             continue;
         var currentline = lines[i].split(",");
         for (var j = 0; j < headers.length; j++) {
-            result[headers[j]].push(currentline[j]);
+            result[headers[j]].push(Number(currentline[j]));
         }
     }
 
@@ -66,6 +66,15 @@ async function dropHandler(event) {
     //here we print the dictionary to console for testings
     console.log(input_dictionary);
     //update_data(input_dictionary);
-    var myAnomaliesReasons = { "B": "Line Regression with C", "C": "Line Regression with B" };
-    update_anomalies(input_dictionary, myAnomaliesReasons);
+}
+
+function disable_buttons(event) {
+    document.getElementById("algo_detection").style.visibility = 'hidden';  
+    //document.getElementById("hybrid").style.opacity = 0;
+}
+
+
+function enable_buttons(event) {
+    document.getElementById("algo_detection").style.visibility = 'visible';
+   // document.getElementById("hybrid").style.opacity = 1;
 }

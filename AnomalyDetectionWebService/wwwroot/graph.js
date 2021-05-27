@@ -27,9 +27,34 @@ var myChart = new Chart(ctx, gr_config);
 var dicForAmonaly = {}
 
 function addLables(num) {
-    for (var i = 0; i < num; i++) 
-        myChart.data.labels.push(i.toString());
+    for (var i = 0; i < num; i++)
+        myChart.data.labels.push(strTime(i));
 }
+
+function twoDigitsRepr(x) {
+    if (x == 0) return "00";
+    if (x >= 10) return "" + x;
+    return "0" + x;
+}
+
+
+function strTime(ts) {
+    let originalTs = ts;
+    //a:b:c.d
+    let d = ts % 10;
+    ts -= d; ts = ts / 10;
+    let c = ts % 60;
+    ts -= c; ts = ts / 60;
+    let b = ts % 60;
+    ts -= b; ts = ts / 60;
+    let a = ts;
+
+    c = twoDigitsRepr(c);
+    b = twoDigitsRepr(b);
+    a = twoDigitsRepr(a);
+    return a + ":" + b + ":" + c + "." + d + "  [" + originalTs + "]";
+}
+
 
 function add_attribute(name, array) {
     if (myChart.data.labels.length == 0) 
@@ -129,7 +154,7 @@ function add_anomaly_attribute(name, array, span) {
     myChart.update();
 }
 
-function testGraph() {
+/*function testGraph() {
     let d = {
         A: [1, 20, 3, 4, 5, 6],
         B: [10, 2, 3, 4, 5, 6],
@@ -164,14 +189,14 @@ function testGraph2() {
     add_anomaly_attribute("B", x.B, [[2, 40], [500, 600]]);
     add_attribute("A", x.A);
 }
-
+*/
 function cleanGraph() {
     myChart.data.datasets = [];
     myChart.data.labels = [];
     myChart.update();
 }
 
-testGraph2()
+//testGraph2()
 // myChart.update('none');//none for no animation 
 /**
  * 'circle'

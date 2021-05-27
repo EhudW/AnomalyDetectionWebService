@@ -36,10 +36,10 @@ document.addEventListener('DOMContentLoaded', () => {
 // NOT called if all the data changed by gridOptions.api.setRowData(x)
 function tb_onRowSelected(event) {
     if (event.node.isSelected()) {
-        //model.add_attr(event.node.data.feature);
+        add_attr(event.node.data.feature);
     }
     else {
-        //model.remove_attr(event.node.data.feature);
+        remove_attr(event.node.data.feature);
     }
 }
 //event.node.data.feature  speed/roll ...
