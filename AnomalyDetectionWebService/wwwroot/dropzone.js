@@ -56,13 +56,19 @@ async function dropHandler(event) {
     allowDrop(event);
     var is_hybrid = document.getElementById("hybrid").checked == true;
     var is_anomaly = document.getElementById("anomaly").checked == true;
+    var is_local_only = document.getElementById("show_local").checked == true;
     var drop = document.getElementById("The_File");
+    if (is_local_only) {
+        drop.innerHTML = event.dataTransfer.items[0].getAsFile().name + " loaded.<br/>" +
+            "Data was not sent to server.";
+    } else {
     drop.innerHTML = event.dataTransfer.items[0].getAsFile().name + " uploaded.<br/>" +
         (is_anomaly ? "anomaly data" : "create new model using<br/>") +
         (is_anomaly ? "" : (is_hybrid ? "hybrid " : "regression ") + "algorithem.");
+    }
     var input_dictionary = await parseFile(event.dataTransfer.items[0].getAsFile());
     //dropzone should know the model in order to  activate model.new_drop
-    var model_id = new_drop(input_dictionary, (is_anomaly ? true : false), (is_hybrid ? true : false));
+    var model_id = new_drop(input_dictionary, is_local_only, (is_anomaly ? true : false), (is_hybrid ? true : false));
     if (model_id != undefined) {
         drop.innerHTML += "<br/> new model is " + model_id;
     }

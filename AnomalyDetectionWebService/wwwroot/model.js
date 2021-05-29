@@ -2,21 +2,26 @@
 var last_list = [];
 var anomalies_dictionary = {};
 
-// When new drop check if file is anomaly or model
-function new_drop(input_dictionary, is_anomaly, is_hybrid) {
+// When new drop check if file is anomaly or model or only show local(default.html, client side) in graph
+// input_dictionary: csv data, is_local_only: don't send http to server, 
+// is_anomaly: detect or learn (create new model) request to server (for is_local_only != true),
+// is_hybrid: hybrid or regression type(for is_local_only != true && is_anomaly != true)
+function new_drop(input_dictionary, is_local_only, is_anomaly, is_hybrid) {
     cleanGraph();
     data_dictionary = input_dictionary;
+
     if (is_anomaly) {
         anomaly_path(data_dictionary);
         update_anomalies(data_dictionary, anomalies_dictionary["reason"]);
-    }
-    else {
-        var x = model_path(data_dictionary, is_hybrid);
-        anomalies_dictionary = {};
-        update_data(data_dictionary);
-        return x;
+        return undefined;
     }
 
+    var x = undefined;
+    if (!is_local_only)
+        x = model_path(data_dictionary, is_hybrid);
+    anomalies_dictionary = {};
+    update_data(data_dictionary);
+    return x;
 };
 
 // Send anomaly request to server, and refresh list 

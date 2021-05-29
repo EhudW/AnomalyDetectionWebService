@@ -60,8 +60,10 @@
         <div id="myGrid_table" class="table_css ag-theme-alpine"></div>
         <!--This is the dropzone that receive the CSV file from the user-->
         <div class="dropbox_css" id="drop">
-            <br/>
+            <br />
             <span style="font-size:medium;">Please select your action:</span><br />
+            <input type="radio" id="show_local" name="user_action" value="graph" onchange="disable_buttons(event)">
+            <label for="show_local" style="font-size:small;">Only show in graph</label><br/>
             <!--User select if he want to laern the flight or detect anomalies.-->
             <input type="radio" checked="checked" id="upload" name="user_action" value="upload" onchange="enable_buttons(event)">
             <label for="upload" style="font-size:small;">New model</label>
@@ -69,7 +71,7 @@
             <label for="anomaly" style="font-size:small;">Detect</label>
             <br />
             <!--If the user want to learn he can choose what algorithem to chhose.
-                This will be shown only if the learn option is selected-->
+        This will be shown only if the learn option is selected-->
             <div id="algo_detection">
                 <span style="font-size:medium;">Please select detection algorithm:</span><br />
                 <input type="radio" checked="checked" id="linear" name="detection_type" value="linear">
