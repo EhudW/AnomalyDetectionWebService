@@ -77,10 +77,14 @@ function send_to_server(url, type, data_) {
         processData: false,
         async: false
     }).done(function (rs, textStatus, xhr) {
-        console.log(xhr.getResponseHeader('X-CUSTOM-HEADER'));
-        console.log(xhr.status);
+        //console.log(xhr.getResponseHeader('X-CUSTOM-HEADER'));
+        //console.log(xhr.status);
     });
-    return JSON.parse(resp.responseText);
+    try {
+        return JSON.parse(resp.responseText);
+    } catch {
+        return undefined;
+    }
 }
 
 
