@@ -49,7 +49,7 @@ function twoDigitsRepr(x) {
 }
 
 /**
- * when given a time step we would like to represent it in time. for example, the 100 time step
+ * when given a time step we would like to represent it in time. for example, the 1000 time step
  * is actually 1 minute and 40 seconds. hence 01:40.
  * @param {any} ts - a time step
  */
