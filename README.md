@@ -33,6 +33,7 @@ Before cloning the project or using files in [ADWS/ADWS/wwwroot/](AnomalyDetecti
 * For the client page : normal updated browser which support javascript and html
 
 # Youtube link:
+https://youtu.be/4rz1RIgKdrk
 
 # CSV files
 The csv files that are used to wwwroot/default.html should be with first line of features names seperated by comma. Rest of lines should be normal real numbers(float, not NaN / infinty) seperated by comma, each line has same amount of fields(like table, columns are the features, cells in rows(except for the header) are the values).
