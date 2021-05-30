@@ -2,7 +2,7 @@
 const ml_columnDefs = [
     { headerName: "id", field: "model_id", sortable: true },
     { headerName: "status", field: "status", sortable: true }, 
-    { headerName: "upload", field: "upload_time", sortable: true }
+    { headerName: "upload", field: "upload_time", sortable: true, resizable: true}
 ];
 
 // specify the data [example]. ml_rowData set1 set2 are all for debuging.

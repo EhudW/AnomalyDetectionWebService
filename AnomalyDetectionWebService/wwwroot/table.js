@@ -2,12 +2,12 @@
 // use headerName for title
 const tb_columnDefs = [
     //{ headerName:"", flex: 1, checkboxSelection: true },
-    { field: "feature", sortable: true, filter: 'agTextColumnFilter', floatingFilter: true, checkboxSelection: true },
+    { field: "feature", sortable: true, filter: 'agTextColumnFilter', floatingFilter: true, checkboxSelection: true, resizable: true},
     { field: "highest", sortable: true },
     { field: "lowest", sortable: true },
     { field: "average", sortable: true },
     { field: "is anomaly", sortable: true },
-    { field: "reason" }
+    { field: "reason", resizable: true}
 ];
 
 // specify the data [example]

@@ -6,6 +6,7 @@ var anomalies_dictionary = {};
 // input_dictionary: csv data, is_local_only: don't send http to server, 
 // is_anomaly: detect or learn (create new model) request to server (for is_local_only != true),
 // is_hybrid: hybrid or regression type(for is_local_only != true && is_anomaly != true)
+// Return the new model id if created, if no new model created on server, return undefined.
 function new_drop(input_dictionary, is_local_only, is_anomaly, is_hybrid) {
     cleanGraph();
     data_dictionary = input_dictionary;
@@ -32,7 +33,7 @@ function anomaly_path(input_dictionary) {
     refresh_list_from_server();
 }
 
-// Send model request to server, and refresh list 
+// Send model request to server, and refresh list. Return the new model id. 
 function model_path(input_dictionary, is_hybrid) {
     var url = 'api/model?model_type=';
     if (is_hybrid) {
@@ -65,7 +66,7 @@ function remove_attr(name) {
     remove_attribute(name, array);
 }
 
-// Send http request to server
+// Send http request to server, return its response as object
 function send_to_server(url, type, data_) {
     var data_JSON = JSON.stringify(data_);
     var resp = $.ajax({
