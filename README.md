@@ -2,13 +2,6 @@
 
 Flight Inspection Web Service, ex2, Advanced Programming 2, biu
 
-# To add :
-
- * Installing guide
- * youtube link
- * About the csv and xml files
- * uml INCLUDING ASP SERVER MVC AND CLIENT
-
 # Introduction
 A service for computing correlation between features, and detect the anomalies according to the normal model that had been learnt.
 The project includes indeed 2 parts,
